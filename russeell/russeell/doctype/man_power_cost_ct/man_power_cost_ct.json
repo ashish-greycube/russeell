@@ -1,0 +1,93 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-05-29 11:47:46.992913",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee_type",
+  "qty",
+  "cost_per_hour",
+  "overtime_per_hour",
+  "normal_hour_total_cost",
+  "overtime_hour_total_cost",
+  "net_total"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "employee_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee Type",
+   "options": "Man Power CT"
+  },
+  {
+   "columns": 1,
+   "default": "1",
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty",
+   "precision": "0"
+  },
+  {
+   "columns": 1,
+   "fetch_from": "employee_type.total_cost_per_hour",
+   "fieldname": "cost_per_hour",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Cost Per Hour",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "overtime_per_hour",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "OverTime Per Hour",
+   "precision": "2"
+  },
+  {
+   "columns": 2,
+   "fieldname": "normal_hour_total_cost",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Normal Hour Total Cost",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "overtime_hour_total_cost",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "OverTime Hour Total Cost",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "net_total",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Net Total",
+   "precision": "2",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-05-30 08:13:07.879662",
+ "modified_by": "Administrator",
+ "module": "Russeell",
+ "name": "Man Power Cost CT",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

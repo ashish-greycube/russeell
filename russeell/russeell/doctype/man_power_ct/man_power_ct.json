@@ -1,12 +1,15 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:man_power_type",
  "creation": "2024-05-27 16:39:11.685210",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "man_power_type",
-  "man_power_detail"
+  "man_power_detail",
+  "total_cost_per_month",
+  "total_cost_per_hour"
  ],
  "fields": [
   {
@@ -15,7 +18,8 @@
    "in_list_view": 1,
    "label": "Man Power Type",
    "options": "Man Power Type CT",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "man_power_detail",
@@ -23,14 +27,29 @@
    "label": "Man Power Detail",
    "options": "Man Power Detail",
    "reqd": 1
+  },
+  {
+   "fieldname": "total_cost_per_month",
+   "fieldtype": "Float",
+   "label": "Total Cost Per Month",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_cost_per_hour",
+   "fieldtype": "Float",
+   "label": "Total Cost Per Hour",
+   "precision": "2",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-27 16:42:20.816769",
+ "modified": "2024-05-29 11:50:26.578845",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Man Power CT",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
