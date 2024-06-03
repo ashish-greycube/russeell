@@ -69,12 +69,18 @@ def validate_quotation_cost_section(self, method):
     + self.custom_vehicle_grand_total
     + self.custom_other_cost_grand_total)
 
+    self.custom_sub_grand_total = sub_total
     self.custom_admin_fees = (sub_total * (admin_fees or 0)) / 100
 
     # calculate estimated cost
     self.custom_total_estimated_cost = sub_total + self.custom_admin_fees
 
-    sales = frappe.db.get_single_value('Rsusseel Setting', 'suggested_sales_markup_percentage')
-    self.custom_suggested_sales_rate = (self.custom_total_estimated_cost * (sales or 0)) / 100
+    sales_markup_percentage = frappe.db.get_single_value('Rsusseel Setting', 'suggested_sales_markup_percentage')
+    self.custom_suggested_sales_rate =((self.custom_total_estimated_cost * (sales_markup_percentage or 0)) / 100)+self.custom_total_estimated_cost
 
-    
+@frappe.whitelist()
+def get_default_warehouse_for_consumed_item(item_code,company):
+    from erpnext.stock.get_item_details import get_item_warehouse
+    item=frappe._dict({'name':item_code,'company':company})
+    default_warehouse = get_item_warehouse(item,item,None,None)
+    return default_warehouse

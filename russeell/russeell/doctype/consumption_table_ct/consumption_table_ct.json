@@ -15,6 +15,7 @@
  ],
  "fields": [
   {
+   "columns": 1,
    "fetch_from": "consumption_item_code.item_name",
    "fieldname": "item_name",
    "fieldtype": "Data",
@@ -23,6 +24,7 @@
    "read_only": 1
   },
   {
+   "columns": 1,
    "default": "1",
    "fieldname": "qty",
    "fieldtype": "Float",
@@ -31,6 +33,7 @@
    "precision": "2"
   },
   {
+   "columns": 2,
    "fieldname": "warehouse",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -38,6 +41,7 @@
    "options": "Warehouse"
   },
   {
+   "columns": 1,
    "fetch_from": "consumption_item_code.valuation_rate",
    "fieldname": "valuation_rate",
    "fieldtype": "Currency",
@@ -47,6 +51,7 @@
    "read_only": 1
   },
   {
+   "columns": 1,
    "fieldname": "total_cost",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -55,6 +60,7 @@
    "read_only": 1
   },
   {
+   "columns": 2,
    "fieldname": "consumption_item_code",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -65,7 +71,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-05-31 13:33:08.722308",
+ "modified": "2024-06-03 11:14:12.259887",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Consumption Table CT",

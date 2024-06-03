@@ -3,6 +3,9 @@ frappe.ui.form.on("Quotation", {
     setup: function (frm){ 
         set_options_for_service_type(frm)     
     },
+    custom_visit_type: function(frm){
+        set_options_for_visit_type(frm)
+    },
     custom_service_type:  function (frm){
         set_options_for_service_type(frm)
     },
@@ -20,12 +23,10 @@ frappe.ui.form.on("Quotation", {
         calculate_admin_fees(frm)
     },
     custom_other_cost_grand_total:function (frm){
-        calculate_total_estimated_cost(frm)
+        calculate_admin_fees(frm)
     },
     custom_admin_fees:function (frm){
         calculate_total_estimated_cost(frm)
-    },
-    custom_total_estimated_cost:function (frm){
         calculate_suggested_sales_rate(frm)
     },
     custom_no_of_visits:function(frm){
@@ -36,8 +37,33 @@ frappe.ui.form.on("Quotation", {
     },
 })
 
+let set_options_for_visit_type = function(frm){
+    // let options = [""]
+    if (frm.doc.custom_visit_type == "Contract"){
+        options = [
+            "",
+            "GPC",
+            "Fumigation",    
+            "Bird-Control"
+        ];
+    }
+    if (frm.doc.custom_visit_type == "Job"){
+        options = [
+            "",
+            "Fumigation",
+            "Termite",
+            "Bird-Control",
+            "Supply",
+            "Disinfection",
+            "GPC"
+        ];
+    }
+
+    set_field_options("custom_service_type",options.join("\n"));
+}
+
 let set_options_for_service_type =  function(frm){
-    let options = [""];
+    // let options = [""]
     if (frm.doc.custom_service_type == "Fumigation") {
         options = [
             "",
@@ -63,6 +89,10 @@ let set_options_for_service_type =  function(frm){
             "Spike",
             "Shooting"
         ];
+    }
+
+    if (frm.doc.custom_service_type == "Supply" || frm.doc.custom_service_type == "Disinfection") {
+        options = [];
     }
 
     if (frm.doc.custom_service_type == "GPC") {
@@ -122,7 +152,7 @@ let calculate_total_estimated_cost = function(frm){
 let calculate_suggested_sales_rate = function(frm){
     frappe.db.get_single_value('Rsusseel Setting', 'suggested_sales_markup_percentage')
     .then(sales => {
-        let sales_rate = (frm.doc.custom_total_estimated_cost * sales) / 100;
+        let sales_rate = ((frm.doc.custom_total_estimated_cost * sales) / 100) + frm.doc.custom_total_estimated_cost;
         frm.set_value("custom_suggested_sales_rate", sales_rate);
     })
 }
@@ -246,6 +276,19 @@ let calculate_total_cost_of_item = function (frm, cdt, cdn) {
         let total_cost = row.qty * row.valuation_rate
         frappe.model.set_value(cdt, cdn, 'total_cost', total_cost)
     }
+
+    frappe.call({
+        method: "russeell.api.get_default_warehouse_for_consumed_item",
+        args: {
+            item_code: row.consumption_item_code,
+            company: frm.doc.company,
+        },
+        callback: function (r) {
+            default_warehouse = r.message
+            frappe.model.set_value(cdt, cdn, 'warehouse', default_warehouse)
+           
+        }
+    })
 }
 
 let calculate_net_cost = function (frm, cdt, cdn) {

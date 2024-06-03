@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-06-03 08:53:41.843243",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "visit_no",
+  "assign_to",
+  "visst_status",
+  "visit_date",
+  "billing_status"
+ ],
+ "fields": [
+  {
+   "fieldname": "visit_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Visit No"
+  },
+  {
+   "fieldname": "assign_to",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Assign To"
+  },
+  {
+   "fieldname": "visst_status",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Visst Status"
+  },
+  {
+   "fieldname": "billing_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Billing Status",
+   "options": "\nReady\nBilled\nCancelled"
+  },
+  {
+   "fieldname": "visit_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Visit Date"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-06-03 09:16:06.021514",
+ "modified_by": "Administrator",
+ "module": "Russeell",
+ "name": "Visit List CT",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

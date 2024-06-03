@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-06-03 09:02:56.375640",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "visit_date",
+  "assign_to",
+  "employee_name",
+  "column_break_hecv",
+  "customer_name",
+  "address",
+  "contact_person",
+  "visit_status",
+  "service_list_section",
+  "service_list",
+  "consumption_list_section",
+  "consumption"
+ ],
+ "fields": [
+  {
+   "fieldname": "visit_date",
+   "fieldtype": "Date",
+   "label": "Visit Date"
+  },
+  {
+   "fieldname": "assign_to",
+   "fieldtype": "Link",
+   "label": "Assign To",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "assign_to.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Link",
+   "label": "Customer Name",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Data",
+   "label": "Address"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Data",
+   "label": "Contact Person"
+  },
+  {
+   "fieldname": "visit_status",
+   "fieldtype": "Select",
+   "label": "Visit Status",
+   "options": "\nOpen,\nScheduled\nCancelled\nTerminated"
+  },
+  {
+   "fieldname": "column_break_hecv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "service_list_section",
+   "fieldtype": "Section Break",
+   "label": "Service List"
+  },
+  {
+   "fieldname": "service_list",
+   "fieldtype": "Table",
+   "label": "Service List",
+   "options": "Visit Item Details"
+  },
+  {
+   "fieldname": "consumption_list_section",
+   "fieldtype": "Section Break",
+   "label": "Consumption List"
+  },
+  {
+   "bold": 1,
+   "fieldname": "consumption",
+   "fieldtype": "Table",
+   "label": "Consumption",
+   "options": "Visit Consumption Item Table"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-06-03 09:34:12.704122",
+ "modified_by": "Administrator",
+ "module": "Russeell",
+ "name": "Visit CD",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

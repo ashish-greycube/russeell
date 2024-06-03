@@ -21,7 +21,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Employee Type",
-   "options": "Man Power CT"
+   "options": "Man Power CD"
   },
   {
    "columns": 1,
@@ -43,7 +43,7 @@
    "read_only": 1
   },
   {
-   "columns": 2,
+   "columns": 1,
    "fieldname": "overtime_per_hour",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -81,7 +81,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-05-30 08:13:07.879662",
+ "modified": "2024-06-03 07:27:28.901490",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Man Power Cost CT",

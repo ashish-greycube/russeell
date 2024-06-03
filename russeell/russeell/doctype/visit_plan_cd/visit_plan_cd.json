@@ -1,0 +1,94 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-06-03 08:31:47.294389",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "sales_order",
+  "contract",
+  "column_break_rfdb",
+  "contract_status",
+  "contact_person",
+  "address",
+  "visit_details_section",
+  "visit_table"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "contract",
+   "fieldtype": "Data",
+   "label": "Contract"
+  },
+  {
+   "fieldname": "column_break_rfdb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contract_status",
+   "fieldtype": "Select",
+   "label": "Contract Status",
+   "options": "Valid"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Link",
+   "label": "Contact Person",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Link",
+   "label": "Address",
+   "options": "Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "visit_details_section",
+   "fieldtype": "Section Break",
+   "label": "Visit Details"
+  },
+  {
+   "fieldname": "visit_table",
+   "fieldtype": "Table",
+   "label": "Visit Table",
+   "options": "Visit List CT"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-06-03 09:00:07.929893",
+ "modified_by": "Administrator",
+ "module": "Russeell",
+ "name": "Visit Plan CD",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

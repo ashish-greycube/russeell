@@ -14,31 +14,39 @@
   {
    "fieldname": "admin_fees_percentage",
    "fieldtype": "Percent",
+   "in_list_view": 1,
    "label": "Admin Fees Percentage",
-   "precision": "2"
+   "precision": "2",
+   "reqd": 1
   },
   {
    "fieldname": "sales_margin_percentage",
    "fieldtype": "Percent",
+   "in_list_view": 1,
    "label": "Sales Margin Percentage",
-   "precision": "2"
+   "precision": "2",
+   "reqd": 1
   },
   {
    "fieldname": "no_of_hours_in_a_month",
    "fieldtype": "Int",
-   "label": "No of hours in a month"
+   "in_list_view": 1,
+   "label": "No of hours in a month",
+   "reqd": 1
   },
   {
    "fieldname": "suggested_sales_markup_percentage",
    "fieldtype": "Percent",
+   "in_list_view": 1,
    "label": "Suggested sales markup percentage",
-   "precision": "2"
+   "precision": "2",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-05-31 12:20:34.463317",
+ "modified": "2024-06-03 14:05:28.541939",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Rsusseel Setting",

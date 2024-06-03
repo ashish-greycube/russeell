@@ -17,7 +17,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Other Cost",
-   "options": "Other Cost CT"
+   "options": "Other Cost CD"
   },
   {
    "default": "1",
@@ -48,7 +48,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-05-30 08:52:14.147895",
+ "modified": "2024-06-03 07:14:55.679158",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Other Cost Table CT",
