@@ -38,7 +38,7 @@ frappe.ui.form.on("Quotation", {
 })
 
 let set_options_for_visit_type = function(frm){
-    // let options = [""]
+    let options = [""]
     if (frm.doc.custom_visit_type == "Contract"){
         options = [
             "",
@@ -63,7 +63,7 @@ let set_options_for_visit_type = function(frm){
 }
 
 let set_options_for_service_type =  function(frm){
-    // let options = [""]
+    let options = [""]
     if (frm.doc.custom_service_type == "Fumigation") {
         options = [
             "",
