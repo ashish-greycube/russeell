@@ -84,3 +84,34 @@ def get_default_warehouse_for_consumed_item(item_code,company):
     item=frappe._dict({'name':item_code,'company':company})
     default_warehouse = get_item_warehouse(item,item,None,None)
     return default_warehouse
+
+@frappe.whitelist()
+def make_visit_pan(sale_order, date, contact_person, address, no_of_visit):
+    # print(sale_order, '------sale_order')
+    visit_plan = frappe.new_doc("Visit Plan CD")
+    visit_plan.date = date,
+    visit_plan.sales_order =  sale_order,
+    visit_plan.contact_person = contact_person,
+    visit_plan.address = address
+
+    visit_plan.save()
+
+    so_items = frappe.db.get_list("Sales Order Item", parent_doctype="Sales Order", filters={'parent': sale_order},fields=['item_code', 'item_name'],)
+
+    for visit in range(int(no_of_visit)):
+        visit = frappe.new_doc("Visit CD")
+        visit.visit_plan_reference = visit_plan.name
+        for item in so_items:
+            visit.append("service_list",{"item_code": item.item_code, "item_name":item.item_name})
+        visit.save()
+        frappe.msgprint(_("Visit {0} is created").format(visit.name), alert=True)
+
+    visit_details = frappe.db.get_list("Visit CD", filters={'visit_plan_reference': visit_plan.name}, fields=['name'])
+
+    for plan in visit_details:
+        visit_plan.append("visit_table",{"visit_no": plan.name})
+        visit_plan.save()
+    frappe.msgprint(_("Visit Plan {0} is created").format(visit_plan.name), alert=True)
+
+    return visit.name, visit_plan.name
+    # return visit_plan.name

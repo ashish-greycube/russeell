@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "VP-.#####",
  "creation": "2024-06-03 08:31:47.294389",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -11,7 +12,8 @@
   "column_break_rfdb",
   "contract_status",
   "contact_person",
-  "address",
+  "customer_address",
+  "address_display",
   "visit_details_section",
   "visit_table"
  ],
@@ -46,14 +48,7 @@
    "fieldname": "contact_person",
    "fieldtype": "Link",
    "label": "Contact Person",
-   "options": "Customer"
-  },
-  {
-   "fieldname": "address",
-   "fieldtype": "Link",
-   "label": "Address",
-   "options": "Address",
-   "read_only": 1
+   "options": "Contact"
   },
   {
    "fieldname": "visit_details_section",
@@ -65,14 +60,32 @@
    "fieldtype": "Table",
    "label": "Visit Table",
    "options": "Visit List CT"
+  },
+  {
+   "fieldname": "customer_address",
+   "fieldtype": "Link",
+   "label": "Customer Address",
+   "options": "Address"
+  },
+  {
+   "fieldname": "address_display",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2024-06-03 09:00:07.929893",
+ "links": [
+  {
+   "link_doctype": "Visit CD",
+   "link_fieldname": "visit_plan_reference"
+  }
+ ],
+ "modified": "2024-06-04 13:24:56.751739",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit Plan CD",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
