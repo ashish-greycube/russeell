@@ -6,6 +6,10 @@ Customization for Russeell
 
 mit
 
+### Note
+- Create Accounting Dimension 'Custom Business Unit' and 'Custom Business Branch Unit'
+- In Sales Order Change Label of above created fields --> remove 'Custom'
+
 <hr>
 
 #### Contact Us  
