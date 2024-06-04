@@ -86,14 +86,19 @@ def get_default_warehouse_for_consumed_item(item_code,company):
     return default_warehouse
 
 @frappe.whitelist()
-def make_visit_pan(sale_order, date, contact_person, address, no_of_visit):
+def make_visit_pan(sale_order, date, address, no_of_visit, contact_person=None):
+    # from frappe.contacts.doctype.address.address import get_address_display
     # print(sale_order, '------sale_order')
+    print(contact_person, '----------contact_person')
     visit_plan = frappe.new_doc("Visit Plan CD")
     visit_plan.date = date,
     visit_plan.sales_order =  sale_order,
-    visit_plan.contact_person = contact_person,
-    visit_plan.address = address
+    visit_plan.contact_person = contact_person or None,
+    visit_plan.address = address or None
+    # visit_plan.set("address", address)
+    # visit_plan.set("address_display", get_address_display(visit_plan.address))
 
+    print(address,'-------------------address')
     visit_plan.save()
 
     so_items = frappe.db.get_list("Sales Order Item", parent_doctype="Sales Order", filters={'parent': sale_order},fields=['item_code', 'item_name'],)
@@ -113,5 +118,5 @@ def make_visit_pan(sale_order, date, contact_person, address, no_of_visit):
         visit_plan.save()
     frappe.msgprint(_("Visit Plan {0} is created").format(visit_plan.name), alert=True)
 
-    return visit.name, visit_plan.name
+    return visit_plan
     # return visit_plan.name

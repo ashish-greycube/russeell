@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "date",
+  "customer",
   "sales_order",
   "contract",
   "column_break_rfdb",
@@ -21,11 +22,13 @@
   {
    "fieldname": "date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Date"
   },
   {
    "fieldname": "sales_order",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Sales Order",
    "options": "Sales Order"
   },
@@ -72,6 +75,12 @@
    "fieldtype": "Small Text",
    "label": "Address",
    "read_only": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -81,7 +90,7 @@
    "link_fieldname": "visit_plan_reference"
   }
  ],
- "modified": "2024-06-04 13:24:56.751739",
+ "modified": "2024-06-04 16:26:15.777619",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit Plan CD",

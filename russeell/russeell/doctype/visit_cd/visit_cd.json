@@ -55,10 +55,11 @@
    "label": "Contact Person"
   },
   {
+   "default": "Open",
    "fieldname": "visit_status",
    "fieldtype": "Select",
    "label": "Visit Status",
-   "options": "\nOpen,\nScheduled\nCancelled\nTerminated"
+   "options": "\nOpen\nScheduled\nCompleted\nCancelled\nTerminated"
   },
   {
    "fieldname": "column_break_hecv",
@@ -96,7 +97,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-04 10:48:47.962754",
+ "modified": "2024-06-04 16:27:26.266351",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",
