@@ -9,6 +9,7 @@ mit
 ### Note
 - Create Accounting Dimension 'Custom Business Unit' and 'Custom Business Branch Unit'
 - In Sales Order Change Label of above created fields --> remove 'Custom'
+- Shift Territory field :- In QN move it to Visit Details Section, below Project field and In SO move it to Accounting Dimensions Section, below Cost Center field
 
 <hr>
 
