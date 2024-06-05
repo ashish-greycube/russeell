@@ -257,7 +257,7 @@ let calculate_normal_hour_total_cost = function (frm, cdt, cdn) {
 let overtime_hour_total_cost = function (frm, cdt, cdn) {
     let row = locals[cdt][cdn];
     if (row.overtime_per_hour) {
-        let total_cost = row.qty * row.overtime_per_hour
+        let total_cost = (row.qty * row.overtime_per_hour ) + frm.doc.custom_overtime_hours
         frappe.model.set_value(cdt, cdn, 'overtime_hour_total_cost', total_cost)
     }
 }

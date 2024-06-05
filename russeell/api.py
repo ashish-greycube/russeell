@@ -1,14 +1,10 @@
 from __future__ import unicode_literals
 import frappe
 from frappe import msgprint, _
-from frappe.utils import flt
+from frappe.utils import flt, nowdate
 
 def validate_quotation_cost_section(self, method):
-    # calculate_man_power_cost(self, method)
-    # calculate_net_total_and_grand_total(self, method)
-    # calculate_visit_hours(self, method)
-
-
+  
     # calculate visit hours
     no_of_hours_in_a_month = frappe.db.get_single_value('Rsusseel Setting', 'no_of_hours_in_a_month')
 
@@ -25,7 +21,7 @@ def validate_quotation_cost_section(self, method):
     grand_total = 0
     for row in self.get('custom_man_power_cost'):
          row.normal_hour_total_cost = flt((row.qty * (row.cost_per_hour or 0) * (self.custom_total_hours or 0)),2)
-         row.overtime_hour_total_cost = flt((row.qty * (row.overtime_per_hour or 0)),2)
+         row.overtime_hour_total_cost = flt((row.qty * (row.overtime_per_hour or 0)),2) + flt(self.custom_overtime_hours)
          row.net_total = flt((row.normal_hour_total_cost + row.overtime_hour_total_cost),2)
          grand_total = grand_total + row.net_total
     
@@ -86,19 +82,22 @@ def get_default_warehouse_for_consumed_item(item_code,company):
     return default_warehouse
 
 @frappe.whitelist()
-def make_visit_pan(sale_order, date, address, no_of_visit, contact_person=None):
-    # from frappe.contacts.doctype.address.address import get_address_display
-    # print(sale_order, '------sale_order')
-    print(contact_person, '----------contact_person')
+def make_visit_pan(sale_order, customer, address, no_of_visit, contact_person):
     visit_plan = frappe.new_doc("Visit Plan CD")
-    visit_plan.date = date,
+    visit_plan.date = frappe.utils.nowdate(),
     visit_plan.sales_order =  sale_order,
-    visit_plan.contact_person = contact_person or None,
-    visit_plan.address = address or None
-    # visit_plan.set("address", address)
-    # visit_plan.set("address_display", get_address_display(visit_plan.address))
+    visit_plan.customer = customer
 
-    print(address,'-------------------address')
+    if contact_person == '':
+        visit_plan.contact_person = ''
+    else:
+        visit_plan.contact_person = contact_person,
+    
+    if address == '':
+        visit_plan.customer_address = ''
+    else:
+        visit_plan.customer_address = address
+   
     visit_plan.save()
 
     so_items = frappe.db.get_list("Sales Order Item", parent_doctype="Sales Order", filters={'parent': sale_order},fields=['item_code', 'item_name'],)
@@ -106,17 +105,21 @@ def make_visit_pan(sale_order, date, address, no_of_visit, contact_person=None):
     for visit in range(int(no_of_visit)):
         visit = frappe.new_doc("Visit CD")
         visit.visit_plan_reference = visit_plan.name
+        visit.customer_name = customer
+        visit.contact_person = visit_plan.contact_person
+        visit.customer_address =  visit_plan.customer_address
+
         for item in so_items:
             visit.append("service_list",{"item_code": item.item_code, "item_name":item.item_name})
         visit.save()
         frappe.msgprint(_("Visit {0} is created").format(visit.name), alert=True)
 
-    visit_details = frappe.db.get_list("Visit CD", filters={'visit_plan_reference': visit_plan.name}, fields=['name'])
+    visit_details = frappe.db.get_list("Visit CD", filters={'visit_plan_reference': visit_plan.name}, fields=['name'], order_by="creation asc")
 
-    for plan in visit_details:
-        visit_plan.append("visit_table",{"visit_no": plan.name})
+    for vp in visit_details:
+        visit_plan.append("visit_table",{"visit_no": vp.name})
         visit_plan.save()
     frappe.msgprint(_("Visit Plan {0} is created").format(visit_plan.name), alert=True)
 
-    return visit_plan
+    return visit_plan, visit
     # return visit_plan.name

@@ -12,6 +12,7 @@
  ],
  "fields": [
   {
+   "default": "10",
    "fieldname": "admin_fees_percentage",
    "fieldtype": "Percent",
    "in_list_view": 1,
@@ -20,6 +21,7 @@
    "reqd": 1
   },
   {
+   "default": "20",
    "fieldname": "sales_margin_percentage",
    "fieldtype": "Percent",
    "in_list_view": 1,
@@ -28,6 +30,7 @@
    "reqd": 1
   },
   {
+   "default": "208",
    "fieldname": "no_of_hours_in_a_month",
    "fieldtype": "Int",
    "in_list_view": 1,
@@ -35,6 +38,7 @@
    "reqd": 1
   },
   {
+   "default": "50",
    "fieldname": "suggested_sales_markup_percentage",
    "fieldtype": "Percent",
    "in_list_view": 1,
@@ -46,7 +50,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-06-03 14:05:28.541939",
+ "modified": "2024-06-05 14:42:57.994578",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Rsusseel Setting",

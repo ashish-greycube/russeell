@@ -21,13 +21,15 @@
   {
    "fieldname": "cost_per_hour",
    "fieldtype": "Currency",
+   "in_list_view": 1,
    "label": "Cost Per Hour",
+   "precision": "2",
    "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-27 16:10:07.188980",
+ "modified": "2024-06-05 14:49:14.467797",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Equipments CD",
