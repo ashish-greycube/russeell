@@ -82,7 +82,7 @@ def get_default_warehouse_for_consumed_item(item_code,company):
     return default_warehouse
 
 @frappe.whitelist()
-def make_visit_pan(sale_order, customer, address, no_of_visit, contact_person):
+def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
     visit_plan = frappe.new_doc("Visit Plan CD")
     visit_plan.date = frappe.utils.nowdate(),
     visit_plan.sales_order =  sale_order,
@@ -98,7 +98,7 @@ def make_visit_pan(sale_order, customer, address, no_of_visit, contact_person):
     else:
         visit_plan.customer_address = address
    
-    visit_plan.save()
+    visit_plan.save(ignore_permissions=True)
 
     so_items = frappe.db.get_list("Sales Order Item", parent_doctype="Sales Order", filters={'parent': sale_order},fields=['item_code', 'item_name'],)
 
@@ -111,14 +111,14 @@ def make_visit_pan(sale_order, customer, address, no_of_visit, contact_person):
 
         for item in so_items:
             visit.append("service_list",{"item_code": item.item_code, "item_name":item.item_name})
-        visit.save()
+        visit.save(ignore_permissions=True)
         frappe.msgprint(_("Visit {0} is created").format(visit.name), alert=True)
 
     visit_details = frappe.db.get_list("Visit CD", filters={'visit_plan_reference': visit_plan.name}, fields=['name'], order_by="creation asc")
 
     for vp in visit_details:
         visit_plan.append("visit_table",{"visit_no": vp.name})
-        visit_plan.save()
+        visit_plan.save(ignore_permissions=True)
     frappe.msgprint(_("Visit Plan {0} is created").format(visit_plan.name), alert=True)
 
     return visit_plan, visit

@@ -62,7 +62,8 @@
    "fieldname": "visit_table",
    "fieldtype": "Table",
    "label": "Visit Table",
-   "options": "Visit List CT"
+   "options": "Visit List CT",
+   "read_only": 1
   },
   {
    "fieldname": "customer_address",
@@ -90,7 +91,7 @@
    "link_fieldname": "visit_plan_reference"
   }
  ],
- "modified": "2024-06-04 16:26:15.777619",
+ "modified": "2024-06-06 07:57:50.508052",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit Plan CD",

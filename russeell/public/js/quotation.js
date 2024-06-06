@@ -195,6 +195,12 @@ frappe.ui.form.on("Consumption Table CT", {
     qty:function(frm, cdt, cdn){
         calculate_total_cost_of_item(frm,cdt,cdn)
        },
+    total_cost:function(frm, cdt, cdn){
+        calculate_consumption_items_grand_total(frm,cdt,cdn)
+       },
+    custom_consumption_table_remove:function(frm, cdt, cdn){
+        calculate_consumption_items_grand_total(frm,cdt,cdn)
+       },
 })  
 
 
@@ -306,6 +312,14 @@ let calculate_man_power_grand_total = function (frm, cdt, cdn) {
     })
 
     frm.set_value("custom_man_power_grand_total", grand_total);
+}
+
+let calculate_consumption_items_grand_total =  function (frm, cdt, cdn) {
+    let grand_total = 0
+    frm.doc.custom_consumption_table.forEach(function (cost) {
+        grand_total = grand_total + cost.total_cost
+    })
+    frm.set_value("custom_consumption_tools_grand_total", grand_total);
 }
 
 let calculate_equipments_grand_total = function (frm, cdt, cdn) {

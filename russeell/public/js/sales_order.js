@@ -13,7 +13,7 @@ frappe.ui.form.on("Sales Order", {
 
 function make_visit_pan(frm) {
     frappe.call({
-        method: "russeell.api.make_visit_pan",
+        method: "russeell.api.make_visit_plan",
         args: {
             sale_order: frm.doc.name,
             customer: frm.doc.customer,
@@ -23,7 +23,6 @@ function make_visit_pan(frm) {
         },
         callback: function (r) {
             console.log(r.message)
-            // window.open('/app/visit-plan-cd/' + r.message)
         }
     })
 }
