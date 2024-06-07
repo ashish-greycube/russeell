@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestRsusseelSetting(FrappeTestCase):
+class TestRusseellSetting(FrappeTestCase):
 	pass

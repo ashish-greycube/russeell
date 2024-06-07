@@ -16,7 +16,7 @@ let set_default_warehouse = function (frm, cdt, cdn) {
             company: frappe.defaults.get_default("company"),
         },
         callback: function (r) {
-            default_warehouse = r.message
+           let default_warehouse = r.message
             frappe.model.set_value(cdt, cdn, 'warehouse', default_warehouse)
            
         }

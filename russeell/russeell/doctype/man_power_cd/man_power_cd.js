@@ -7,7 +7,7 @@
 // 	},
 // });
 
-frappe.ui.form.on("Man Power Detail", {
+frappe.ui.form.on("Man Power Detail CT", {
     cost_per_month:function(frm, cdt, cdn){
         calculate_cost(frm,cdt,cdn)
        },
@@ -23,9 +23,14 @@ let calculate_cost = function(frm,cdt,cdn){
     })
     frm.set_value("total_cost_per_month", total_cost_per_month)
 
-    frappe.db.get_single_value('Rsusseel Setting', 'admin_fees_percentage')
+    frappe.db.get_single_value('Russeell Setting', 'no_of_hours_in_a_month')
     .then( no_of_hours_in_a_month => {
-        let total_cost_per_hour = total_cost_per_month /no_of_hours_in_a_month
-        frm.set_value("total_cost_per_hour", total_cost_per_hour)
+        if (no_of_hours_in_a_month != 0){
+            let total_cost_per_hour = total_cost_per_month /no_of_hours_in_a_month
+            frm.set_value("total_cost_per_hour", total_cost_per_hour)
+        }
+        else{
+            frm.set_value("total_cost_per_hour", 0)
+        }
     })
 }

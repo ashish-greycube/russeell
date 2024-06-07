@@ -6,7 +6,7 @@ from frappe.utils import flt, nowdate
 def validate_quotation_cost_section(self, method):
   
     # calculate visit hours
-    no_of_hours_in_a_month = frappe.db.get_single_value('Rsusseel Setting', 'no_of_hours_in_a_month')
+    no_of_hours_in_a_month = frappe.db.get_single_value('Russeell Setting', 'no_of_hours_in_a_month')
 
     self.custom_total_hours = (self.custom_no_of_visits or 0) * (self.custom_visit_duration_hrs or 0)
 
@@ -58,7 +58,7 @@ def validate_quotation_cost_section(self, method):
     self.custom_other_cost_grand_total = other_cost_grand_total
 
     # calculate sub_total and admin fees
-    admin_fees = frappe.db.get_single_value('Rsusseel Setting', 'admin_fees_percentage')
+    admin_fees = frappe.db.get_single_value('Russeell Setting', 'admin_fees_percentage')
     sub_total = (self.custom_man_power_grand_total 
     + self.custom_consumption_tools_grand_total 
     + self.custom_equipment_grand_total 
@@ -71,7 +71,7 @@ def validate_quotation_cost_section(self, method):
     # calculate estimated cost
     self.custom_total_estimated_cost = sub_total + self.custom_admin_fees
 
-    sales_markup_percentage = frappe.db.get_single_value('Rsusseel Setting', 'suggested_sales_markup_percentage')
+    sales_markup_percentage = frappe.db.get_single_value('Russeell Setting', 'suggested_sales_markup_percentage')
     self.custom_suggested_sales_rate =((self.custom_total_estimated_cost * (sales_markup_percentage or 0)) / 100)+self.custom_total_estimated_cost
 
 @frappe.whitelist()

@@ -113,7 +113,7 @@ let calculate_total_hours = function(frm){
     let total_hours = (frm.doc.custom_visit_duration_hrs || 0) * (frm.doc.custom_no_of_visits || 0)
     frm.set_value("custom_total_hours", total_hours);
 
-    frappe.db.get_single_value('Rsusseel Setting', 'no_of_hours_in_a_month')
+    frappe.db.get_single_value('Russeell Setting', 'no_of_hours_in_a_month')
     .then(hours => {
         if (frm.doc.custom_total_hours >= hours){
             frm.set_value("custom_normal_hours_without_overtime", hours);
@@ -129,7 +129,7 @@ let calculate_total_hours = function(frm){
 }
 
 let calculate_admin_fees = function(frm){
-    frappe.db.get_single_value('Rsusseel Setting', 'admin_fees_percentage')
+    frappe.db.get_single_value('Russeell Setting', 'admin_fees_percentage')
     .then(fees => {
         let sub_total = (frm.doc.custom_man_power_grand_total 
             + frm.doc.custom_consumption_tools_grand_total 
@@ -150,7 +150,7 @@ let calculate_total_estimated_cost = function(frm){
 }
 
 let calculate_suggested_sales_rate = function(frm){
-    frappe.db.get_single_value('Rsusseel Setting', 'suggested_sales_markup_percentage')
+    frappe.db.get_single_value('Russeell Setting', 'suggested_sales_markup_percentage')
     .then(sales => {
         let sales_rate = ((frm.doc.custom_total_estimated_cost * sales) / 100) + frm.doc.custom_total_estimated_cost;
         frm.set_value("custom_suggested_sales_rate", sales_rate);

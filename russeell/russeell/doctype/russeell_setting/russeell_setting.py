@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class RsusseelSetting(Document):
+class RusseellSetting(Document):
 	pass
