@@ -10,11 +10,6 @@ mit
 - Create Accounting Dimension 'Custom Business Unit' and 'Custom Business Branch Unit'
 - In Sales Order Change Label of above created fields --> remove 'Custom'
 - Shift Territory field :- In QN move it to Visit Details Section, below Project field and In SO move it to Accounting Dimensions Section, below Cost Center field
-- Russeell Setting Values ex. :-
-   - Admin Fees Percentage : 10 ;
-   - Sales Margin Percentage : 20;
-   - No of hours in a month : 208;
-   - Suggested sales markup percentage : 50
 
 <hr>
 
