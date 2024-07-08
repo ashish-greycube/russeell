@@ -1,0 +1,50 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-07-08 13:55:06.688176",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "slot_start_date",
+  "column_break_edhu",
+  "slot_end_date",
+  "no_of_visits"
+ ],
+ "fields": [
+  {
+   "fieldname": "slot_start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Slot Start Date"
+  },
+  {
+   "fieldname": "slot_end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Slot End Date"
+  },
+  {
+   "fieldname": "no_of_visits",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "No. Of Visits"
+  },
+  {
+   "fieldname": "column_break_edhu",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-07-08 14:28:11.745237",
+ "modified_by": "Administrator",
+ "module": "Russeell",
+ "name": "Billing Period Slots",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

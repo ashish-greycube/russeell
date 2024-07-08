@@ -10,6 +10,8 @@
   "assign_to",
   "employee_name",
   "visit_plan_reference",
+  "sales_order_reference",
+  "sales_invoice_reference",
   "column_break_hecv",
   "customer_name",
   "contact_person",
@@ -56,7 +58,7 @@
    "fieldname": "visit_status",
    "fieldtype": "Select",
    "label": "Visit Status",
-   "options": "\nOpen\nScheduled\nCompleted\nCancelled\nTerminated"
+   "options": "\nOpen\nScheduled\nCompleted\nCustomer Cancelled\nCompany Cancelled\nTerminated"
   },
   {
    "fieldname": "column_break_hecv",
@@ -102,11 +104,23 @@
    "fieldtype": "Small Text",
    "label": "Address",
    "read_only": 1
+  },
+  {
+   "fieldname": "sales_order_reference",
+   "fieldtype": "Link",
+   "label": "Sales Order Reference",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "sales_invoice_reference",
+   "fieldtype": "Link",
+   "label": "Sales Invoice Reference",
+   "options": "Sales Invoice"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-05 13:47:51.390818",
+ "modified": "2024-07-08 13:39:15.607161",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",
