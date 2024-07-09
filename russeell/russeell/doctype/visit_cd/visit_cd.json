@@ -10,7 +10,7 @@
   "assign_to",
   "employee_name",
   "visit_plan_reference",
-  "sales_order_reference",
+  "sales_order",
   "sales_invoice_reference",
   "column_break_hecv",
   "customer_name",
@@ -106,21 +106,21 @@
    "read_only": 1
   },
   {
-   "fieldname": "sales_order_reference",
-   "fieldtype": "Link",
-   "label": "Sales Order Reference",
-   "options": "Sales Order"
-  },
-  {
    "fieldname": "sales_invoice_reference",
    "fieldtype": "Link",
    "label": "Sales Invoice Reference",
    "options": "Sales Invoice"
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order Reference",
+   "options": "Sales Order"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-09 10:03:34.712873",
+ "modified": "2024-07-09 11:08:39.011502",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",
