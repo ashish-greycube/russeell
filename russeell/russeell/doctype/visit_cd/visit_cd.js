@@ -1,7 +1,7 @@
 // Copyright (c) 2024, GreyCube Technologies and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("Visit Consumption Item Table", {
+frappe.ui.form.on("Visit Consumption Item Table CT", {
 	item_code: function(frm, cdt, cdn) {
         set_default_warehouse(frm, cdt, cdn)
 	},

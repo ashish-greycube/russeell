@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class VisitItemDetails(Document):
+class VisitItemDetailsCT(Document):
 	pass

@@ -73,7 +73,7 @@
    "fieldname": "service_list",
    "fieldtype": "Table",
    "label": "Service List",
-   "options": "Visit Item Details"
+   "options": "Visit Item Details CT"
   },
   {
    "fieldname": "consumption_list_section",
@@ -85,7 +85,7 @@
    "fieldname": "consumption",
    "fieldtype": "Table",
    "label": "Consumption",
-   "options": "Visit Consumption Item Table"
+   "options": "Visit Consumption Item Table CT"
   },
   {
    "fieldname": "visit_plan_reference",
@@ -120,7 +120,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-08 13:39:15.607161",
+ "modified": "2024-07-09 10:03:34.712873",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",

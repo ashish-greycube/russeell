@@ -1,7 +1,8 @@
 from __future__ import unicode_literals
 import frappe
 from frappe import msgprint, _
-from frappe.utils import flt, nowdate
+from frappe.utils import flt, getdate, nowdate, add_to_date
+from datetime import datetime  
 
 def validate_quotation_cost_section(self, method):
   
@@ -74,6 +75,12 @@ def validate_quotation_cost_section(self, method):
     sales_markup_percentage = frappe.db.get_single_value('Russeell Setting', 'suggested_sales_markup_percentage')
     self.custom_suggested_sales_rate =((self.custom_total_estimated_cost * (sales_markup_percentage or 0)) / 100)+self.custom_total_estimated_cost
 
+# def validate_so_billing_period(self, method):
+#     today = getdate(nowdate())
+#     after_10_days = add_to_date(today, days=10, as_string=True)
+#     print(after_10_days, '------after_10_days')
+
+
 @frappe.whitelist()
 def get_default_warehouse_for_consumed_item(item_code,company):
     from erpnext.stock.get_item_details import get_item_warehouse
@@ -108,6 +115,7 @@ def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
         visit.customer_name = customer
         visit.contact_person = visit_plan.contact_person
         visit.customer_address =  visit_plan.customer_address
+        visit.sales_order = visit_plan.sales_order
 
         for item in so_items:
             visit.append("service_list",{"item_code": item.item_code, "item_name":item.item_name})

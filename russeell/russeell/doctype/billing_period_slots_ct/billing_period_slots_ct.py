@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class VisitConsumptionItemTable(Document):
+class BillingPeriodSlotsCT(Document):
 	pass
