@@ -7,11 +7,21 @@ from datetime import datetime
 def validate_quotation_cost_section(self, method):
   
     # calculate visit hours
+    self.custom_total_no_of_visits =  (self.custom_no_of_visits or 0) * (self.custom_no_of_locations or 0)
+
     no_of_hours_in_a_month = frappe.db.get_single_value('Russeell Setting', 'no_of_hours_in_a_month')
 
-    self.custom_total_hours = (self.custom_no_of_visits or 0) * (self.custom_visit_duration_hrs or 0)
+    total_hours = (self.custom_total_no_of_visits or 0) * (self.custom_visit_duration_hrs or 0)
 
-    if self.custom_total_hours >= no_of_hours_in_a_month:
+    old_doc = self.get_doc_before_save()
+    if old_doc and (old_doc.custom_total_hours == None or old_doc.custom_total_hours == 0):
+        self.custom_total_hours = total_hours
+
+    # total_hours_changed = self.has_value_changed("custom_total_hours")
+    # if total_hours_changed and (self.custom_total_hours == 0 or self.custom_total_hours == None):
+    #     self.custom_total_hours = total_hours
+
+    if self.custom_total_hours and self.custom_total_hours >= no_of_hours_in_a_month:
         self.custom_normal_hours_without_overtime = no_of_hours_in_a_month
         self.custom_overtime_hours = self.custom_total_hours - self.custom_normal_hours_without_overtime
     else:
@@ -75,149 +85,116 @@ def validate_quotation_cost_section(self, method):
     sales_markup_percentage = frappe.db.get_single_value('Russeell Setting', 'suggested_sales_markup_percentage')
     self.custom_suggested_sales_rate =((self.custom_total_estimated_cost * (sales_markup_percentage or 0)) / 100)+self.custom_total_estimated_cost
 
+    # validate item table
+
+    if len(self.items) > 1:
+        frappe.throw(_('You cann`t add multiple items in Items table.'))
+
+    print(self.custom_total_no_of_visits, '---custom_total_no_of_visits')
+    for item in self.items:
+        if self.custom_total_no_of_visits > 0:
+            item.qty = self.custom_total_no_of_visits
+        if self.custom_suggested_sales_rate > 0:
+            item.rate = self.custom_suggested_sales_rate
+
+        if item.rate > self.custom_suggested_sales_rate:
+            frappe.throw(_('Item rate cann`t be less than suggested sales rate'))
+    
+
 
 def check_contact_end_date(self, method):
-    # Advance-Monthy
-    if self.custom_billing_type == 'Advance-Monthy':
-        monthy_end_dates = ''
-        slot_date = self.custom_contract_start_date
-        while monthy_end_dates < self.custom_contract_end_date:
-                    monthy_end_dates = add_to_date(slot_date, months=1)
-                    slot_date = monthy_end_dates
 
-        if add_to_date(slot_date, days=-1) != self.custom_contract_end_date:
-            frappe.throw(_("Slot end date is invalid"))
+    # CSD & CED not be none & CED not less than CSD & 1 year 
+    contract_start_date = self.custom_contract_start_date
+    contract_end_date = self.custom_contract_end_date
 
-    # Advance-Quaterly
-    if self.custom_billing_type == 'Advance-Quaterly':
-        quaterly_end_dates = ''
-        slot_date = self.custom_contract_start_date
-        while quaterly_end_dates < self.custom_contract_end_date:
-                    quaterly_end_dates = add_to_date(slot_date, months=3)
-                    slot_date = quaterly_end_dates
+    print(self.custom_billing_type, '-----self.custom_billing_type')
 
-        if add_to_date(slot_date, days=-1) != self.custom_contract_end_date:
-            frappe.throw(_("Slot end date is invalid"))
+    if self.custom_billing_type == '':
+        print('not custom_billing_type')
 
-    # Advance-HalfYearly
-    if self.custom_billing_type == 'Advance-HalfYearly':
-        halfyearly_end_dates = ''
-        slot_date = self.custom_contract_start_date
-        while halfyearly_end_dates < self.custom_contract_end_date:
-                    halfyearly_end_dates = add_to_date(slot_date, months=6)
-                    slot_date = halfyearly_end_dates
+    if contract_start_date != None and contract_end_date != None:
 
-        if add_to_date(slot_date, days=-1) != self.custom_contract_end_date:
-            frappe.throw(_("Slot end date is invalid"))
+        if contract_end_date < contract_start_date:
+             frappe.throw(_('Contract end date must be greater than Contract start date'))
 
-    # Advance-Yearly
-    if self.custom_billing_type == 'Advance-Yearly':
-        yearly_end_dates = ''
-        slot_date = self.custom_contract_start_date
-        while yearly_end_dates < self.custom_contract_end_date:
-                    yearly_end_dates = add_to_date(slot_date, years=1)
-                    slot_date = yearly_end_dates
+        contract_year_last_date = add_to_date(contract_start_date, years=1)
+        if add_to_date(contract_year_last_date, days=-1) < contract_end_date:
+            frappe.throw(_('Contract cann`t be more than a year, contract dates should be between {0} and {1}'
+                           ).format(contract_start_date, add_to_date(contract_year_last_date, days=-1)))
 
-        if add_to_date(slot_date, days=-1) != self.custom_contract_end_date:
-            frappe.throw(_("Slot end date is invalid"))
+        if self.custom_billing_type != 'Advance-Onetime':    
+
+            month_frequency = ''
+            if self.custom_billing_type == 'Advance-Monthy' or self.custom_billing_type == 'Rear-Monthly':
+                month_frequency = 1
+
+            if self.custom_billing_type == 'Advance-Quaterly' or self.custom_billing_type == 'Rear-Quaterly':
+                month_frequency = 3
+
+            if self.custom_billing_type == 'Advance-HalfYearly' or self.custom_billing_type == 'Rear-HalfYearly':
+                month_frequency = 6
+
+            if self.custom_billing_type == 'Advance-Yearly':
+                month_frequency = 12
+
+            slot_end_dates = ''
+            slot_start_date = contract_start_date
+            while slot_end_dates < contract_end_date:
+                        slot_end_dates = add_to_date(slot_start_date, months=month_frequency)
+                        slot_start_date = slot_end_dates
+
+            last_slot_end_date = add_to_date(slot_start_date, days=-1)
+            if last_slot_end_date != self.custom_contract_end_date:
+                frappe.throw(_("Slot end date is invalid it should be {0}".format(last_slot_end_date)))
     
-def validate_so_billing_period(self, method):
-    print('validate_so_billing_period------')
-    start_date = self.custom_contract_start_date
-    if start_date != None and self.custom_contract_end_date != None:
-        # print(start_date, '---start_date')
+def set_so_billing_period_slots(self, method):
 
-        # Advance-Onetime
+    contract_start_date = self.custom_contract_start_date
+    contract_end_date = self.custom_contract_end_date
+
+    if contract_start_date != None and contract_end_date != None:
+
+        month_frequency = ''
+
+        if self.custom_billing_type == 'Advance-Monthy' or self.custom_billing_type == 'Rear-Monthly':
+            month_frequency = 1
+
+        if self.custom_billing_type == 'Advance-Quaterly' or self.custom_billing_type == 'Rear-Quaterly':
+            month_frequency = 3
+
+        if self.custom_billing_type == 'Advance-HalfYearly' or self.custom_billing_type == 'Rear-HalfYearly':
+            month_frequency = 6
+
+        if self.custom_billing_type == 'Advance-Yearly':
+            month_frequency = 12
+
         if self.custom_billing_type == 'Advance-Onetime':
             row = self.append('custom_billing_period_slot', {})
-            row.slot_start_date = start_date
-            row.slot_end_date = self.custom_contract_end_date
-
-        # Advance-Monthy
-        if self.custom_billing_type == 'Advance-Monthy':
+            row.slot_start_date = contract_start_date
+            row.slot_end_date = contract_end_date
+        else:
             monthy_end_dates = []
-            slot_date = start_date
-            while slot_date <= self.custom_contract_end_date:
-                slot_end_date = add_to_date(slot_date, months=1)
+            slot_date = contract_start_date
+            while slot_date <= contract_end_date:
+                slot_end_date = add_to_date(slot_date, months=month_frequency)
                 monthy_end_dates.append(slot_end_date)
                 slot_date = slot_end_date
             print(monthy_end_dates, '-----monthy_end_dates')
 
-            slot_start_date = start_date
+            slot_start_date = contract_start_date
             for slot in monthy_end_dates:
-                if slot <= self.custom_contract_end_date:
                     row = self.append('custom_billing_period_slot', {})
                     row.slot_start_date = slot_start_date
                     row.slot_end_date = add_to_date(slot, days=-1) 
                     slot_start_date = slot
-
-        # Advance-Quaterly
-        if self.custom_billing_type == 'Advance-Quaterly':
-            quaterly_end_dates = []
-            slot_date = start_date
-            while slot_date <= self.custom_contract_end_date:
-                slot_end_date = add_to_date(slot_date, months=3)
-                print(slot_date, 'slot_date',slot_end_date,'slot_end_date')
-                quaterly_end_dates.append(slot_end_date)
-                slot_date = slot_end_date
-            print(quaterly_end_dates, '-----quaterly_end_dates')
-
-            slot_start_date = start_date
-            for slot in quaterly_end_dates:
-                if slot <= self.custom_contract_end_date:
-                    row = self.append('custom_billing_period_slot', {})
-                    row.slot_start_date = slot_start_date
-                    row.slot_end_date = slot
-                    slot_start_date = add_to_date(slot, days=1) 
-                
-        # Advance-HalfYearly
-        if self.custom_billing_type == 'Advance-HalfYearly':
-            halfyearly_end_dates = []
-            slot_date = start_date
-            while slot_date <= self.custom_contract_end_date:
-                slot_end_date = add_to_date(slot_date, months=6)
-                halfyearly_end_dates.append(slot_end_date)
-                slot_date = slot_end_date
-            print(halfyearly_end_dates, '-----halfyearly_end_dates')
-
-            slot_start_date = start_date
-            for slot in halfyearly_end_dates:
-                if slot <= self.custom_contract_end_date:
-                    row = self.append('custom_billing_period_slot', {})
-                    row.slot_start_date = slot_start_date
-                    row.slot_end_date = slot
-                    slot_start_date = add_to_date(slot, days=1)
-
-        # Advance-Yearly
-        if self.custom_billing_type == 'Advance-Yearly':
-            yearly_end_dates = []
-            slot_date = start_date
-            while slot_date <= self.custom_contract_end_date:
-                slot_end_date = add_to_date(slot_date, years=1)
-                yearly_end_dates.append(slot_end_date)
-                slot_date = slot_end_date
-            print(yearly_end_dates, '-----yearly_end_dates')
-
-            slot_start_date = start_date
-            for slot in yearly_end_dates:
-                if slot <= self.custom_contract_end_date:
-                    row = self.append('custom_billing_period_slot', {})
-                    row.slot_start_date = slot_start_date
-                    row.slot_end_date = slot
-                    slot_start_date = add_to_date(slot, days=1)
-                       
-    # today = getdate(nowdate())
-    # after_10_days = add_to_date(today, days=10, as_string=True)
-    # print(after_10_days, '------after_10_days')
-    # after_2_month = add_to_date(datetime.now(), months=2)
-    # print(after_2_month, '---------after_2_month') 
 
 # will use when we auto create si    
 def get_si_validity_range(self):
     so = self.items[0].sales_order
     visit_list = frappe.db.get_all('Visit CD',
                               filters={'sales_order':so, 
-                                       'visit_date': ('between', [self.custom_slot_start_date, self.custom_slot_end_date])},
+                                       'planned_visit_date': ('between', [self.custom_slot_start_date, self.custom_slot_end_date])},
                                 fields=['name','sales_invoice_reference', 'visit_status'])
     
     for visit in visit_list:
@@ -225,8 +202,18 @@ def get_si_validity_range(self):
             visit.sales_invoice_reference = self.name
             visit.save()
 
-def get_no_of_visits_in_a_slot(self):
-    frappe.db.count('Visit CD', filters={'sales_invoice_reference':self.name})
+def set_count_of_visits_in_a_slot(so, planned_visit_date):
+    doc = frappe.get_doc('Sales Order', so)
+
+    for slot in doc.custom_billing_period_slot:
+        visit_date = getdate(planned_visit_date)
+        # print(type(slot.slot_start_date), '-----slot.slot_start_date' , type(visit_date), '-----------planned_visit_date')
+        if visit_date >= slot.slot_start_date and visit_date <= slot.slot_end_date:
+            print(slot.no_of_visits, '-----no_of_visits', slot.slot_start_date, '-slot_start_date', slot.slot_end_date, '--slot_end_date')
+            visits = slot.no_of_visits + 1
+            frappe.db.set_value('Billing Period Slots CT', slot.name, 'no_of_visits', visits)
+            # print(slot.no_of_visits, '-------after increaing')
+            break
 
 @frappe.whitelist()
 def get_default_warehouse_for_consumed_item(item_code,company):
@@ -278,3 +265,91 @@ def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
 
     return visit_plan, visit
     # return visit_plan.name
+
+@frappe.whitelist()
+def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits):
+    doc = frappe.get_doc('Sales Order', sales_order)
+
+    si = frappe.new_doc("Sales Invoice")
+    si.customer = doc.customer
+    si.custom_slot_start_date = getdate(slot_start_date)
+    si.custom_slot_end_date = getdate(slot_end_date)
+    si.due_date = nowdate()
+
+    for item in doc.items:
+        row = si.append('items', {})
+        row.item_code = item.item_code
+        row.qty = no_of_visits
+        row.sales_order = sales_order
+        row.so_detail=item.name
+
+    si.run_method("set_missing_values")	
+    si.run_method("calculate_taxes_and_totals")
+    # si.set_payment_schedule()
+
+    # si.run_method("set_po_nos")
+    # si.run_method("set_use_serial_batch_fields")
+    # print(si.custom_slot_start_date, '--si.custom_slot_start_date', si.custom_slot_end_date, '--si.custom_slot_end_date')
+
+    si.save(ignore_permissions=True)
+    frappe.msgprint(_("Sales Invoice {0} Created").format(si.name), alert=True)
+
+    # add si ref in visit
+    billing_slot = frappe.db.get_all('Billing Period Slots CT', filters={'slot_start_date': slot_start_date,'slot_end_date': slot_end_date,
+                                                                         'parent':sales_order},
+                                                                fields=['name','sales_invoice_ref'])
+    
+    if len(billing_slot) > 0:
+        for bi_slot in billing_slot:
+            frappe.db.set_value('Billing Period Slots CT', bi_slot.name, 'sales_invoice_ref', si.name)
+
+    visit_list = frappe.db.get_all('Visit CD', filters={'sales_order': sales_order,
+                                                        'planned_visit_date': ['between', [slot_start_date, slot_end_date]]},
+                                                fields=['name'])
+    # print(visit_list, '-----visit_list')
+
+    if len(visit_list) > 0:
+        
+        for visit in visit_list:
+            frappe.db.set_value('Visit CD', visit.name, 'sales_invoice_reference', si.name)
+
+    # print(sales_order, '------sale_order')
+    # print(slot_start_date, slot_start_date, '---------billing_period_slot')
+    # print(no_of_visits, '---------no_of_visits')
+
+def create_si_for_advance_billing_type():
+   
+    # print('-------------------create_si_for_advance_billing_type----------------------')
+    billing_period_slots_list = frappe.db.get_all('Billing Period Slots CT', filters={'slot_start_date': nowdate(),
+                                                        'sales_invoice_ref': None}, 
+                                                        fields=['parent', 'slot_start_date', 'slot_end_date', 'no_of_visits'])
+    print(nowdate())
+    print(billing_period_slots_list, '---billing_period_slots_list')
+    
+    if len(billing_period_slots_list) > 0:
+        for billing_slot in billing_period_slots_list:
+            print(billing_slot, '----billing_slot')
+
+            so_list = frappe.db.get_all('Sales Order',
+                                filters={'custom_billing_type': ['not in', [None, 'Rear-Monthly', 'Rear-Quaterly', 'Rear-HalfYearly']],
+                                         'name': billing_slot.parent,
+                                         'docstatus': 1,
+                                         'status': ['!=', 'Closed']},
+                                fields=['name'])
+            if len(so_list) > 0:
+                for so in so_list:
+                    print(so, '------so')
+                    si_item = frappe.db.get_all("Sales Invoice Item", 
+                                                filters={"sale_order": so.name}, fields=['parent'])
+                    print(so.name,'--so.name--', billing_slot.slot_start_date, '--billing_slot.slot_start_date--'
+                          ,billing_slot.slot_end_date, '--billing_slot.slot_end_date--',billing_slot.no_of_visits, '--billing_slot.no_of_visits--')
+                    
+                    if len(si_item) > 0 and frappe.db.exists("Sales Invoice", {"name": si_item[0].parent, 
+                                                                               "custom_slot_start_date": billing_slot.slot_start_date}):
+                        print('in if condition')
+                        break
+                    else:
+                        from russeell.api import make_sales_invoice
+                        print('in else condition')
+                        make_sales_invoice(so.name, billing_slot.slot_start_date, billing_slot.slot_end_date, billing_slot.no_of_visits)  
+                    

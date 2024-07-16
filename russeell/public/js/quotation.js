@@ -30,6 +30,12 @@ frappe.ui.form.on("Quotation", {
         calculate_suggested_sales_rate(frm)
     },
     custom_no_of_visits:function(frm){
+        calculate_total_visit(frm)
+    },
+    custom_no_of_locations:function(frm){
+        calculate_total_visit(frm)
+    },
+    custom_total_no_of_visits:function(frm){
         calculate_total_hours(frm)
     },
     custom_visit_duration_hrs:function(frm){
@@ -109,8 +115,13 @@ let set_options_for_service_type =  function(frm){
     set_field_options("custom_sub_type",options.join("\n"));
 }
 
+let calculate_total_visit = function(frm){
+    let total_visit = (frm.doc.custom_no_of_visits || 0) * (frm.doc.custom_no_of_locations || 0)
+    frm.set_value('custom_total_no_of_visits', total_visit)
+}
+
 let calculate_total_hours = function(frm){
-    let total_hours = (frm.doc.custom_visit_duration_hrs || 0) * (frm.doc.custom_no_of_visits || 0)
+    let total_hours = (frm.doc.custom_visit_duration_hrs || 0) * (frm.doc.custom_total_no_of_visits || 0)
     frm.set_value("custom_total_hours", total_hours);
 
     frappe.db.get_single_value('Russeell Setting', 'no_of_hours_in_a_month')

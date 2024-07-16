@@ -128,9 +128,10 @@ doc_events = {
     "Quotation":{
         "validate":"russeell.api.validate_quotation_cost_section"
     },
-    # "Sales Order":{
-    #     "validate": "russeell.api.check_contact_end_date"
-    # }
+    "Sales Order":{
+        "validate": "russeell.api.check_contact_end_date",
+        "before_submit": "russeell.api.set_so_billing_period_slots"
+    }
 }
 # doc_events = {
 # 	"*": {

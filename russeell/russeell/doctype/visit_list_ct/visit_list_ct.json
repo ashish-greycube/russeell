@@ -9,7 +9,7 @@
   "visit_no",
   "assign_to",
   "visit_status",
-  "visit_date",
+  "planned_visit_date",
   "billing_status"
  ],
  "fields": [
@@ -37,26 +37,26 @@
    "options": "\nReady\nBilled\nCancelled"
   },
   {
-   "fetch_from": "visit_no.visit_date",
-   "fieldname": "visit_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Visit Date",
-   "read_only": 1
-  },
-  {
    "fetch_from": "visit_no.visit_status",
    "fieldname": "visit_status",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Visit Status",
    "read_only": 1
+  },
+  {
+   "fetch_from": "visit_no.planned_visit_date",
+   "fieldname": "planned_visit_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Planned Visit Date",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-06-05 12:27:13.454971",
+ "modified": "2024-07-12 07:13:56.487859",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit List CT",

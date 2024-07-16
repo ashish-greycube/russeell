@@ -1,0 +1,119 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-07-12 07:35:05.601283",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_vgqc",
+  "date",
+  "customer",
+  "no_of_credit_note",
+  "no_of_visits_in_si_itemqty",
+  "amended_from",
+  "notes",
+  "column_break_mlzl",
+  "so_reference",
+  "contract_start_date",
+  "no_of_actual_credit_note",
+  "no_of_actual_visits_in_si"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_vgqc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Termination Request",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "so_reference",
+   "fieldtype": "Link",
+   "label": "SO Reference",
+   "options": "Sales Order"
+  },
+  {
+   "fetch_from": "so_reference.customer",
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fetch_from": "so_reference.custom_contract_start_date",
+   "fieldname": "contract_start_date",
+   "fieldtype": "Date",
+   "label": "Contract Start Date "
+  },
+  {
+   "fieldname": "no_of_credit_note",
+   "fieldtype": "Int",
+   "label": "No of Credit Note",
+   "read_only": 1
+  },
+  {
+   "fieldname": "no_of_actual_credit_note",
+   "fieldtype": "Int",
+   "label": "No of Actual Credit Note"
+  },
+  {
+   "fieldname": "no_of_visits_in_si_itemqty",
+   "fieldtype": "Int",
+   "label": "No of Visits in SI Item(Qty)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "no_of_actual_visits_in_si",
+   "fieldtype": "Int",
+   "label": "No of Actual Visits in SI"
+  },
+  {
+   "fieldname": "column_break_mlzl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-07-12 08:39:32.763497",
+ "modified_by": "Administrator",
+ "module": "Russeell",
+ "name": "Termination Request",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

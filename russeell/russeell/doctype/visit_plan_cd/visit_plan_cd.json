@@ -45,7 +45,7 @@
    "fieldname": "contract_status",
    "fieldtype": "Select",
    "label": "Contract Status",
-   "options": "Valid"
+   "options": "Valid\nTerminated"
   },
   {
    "fieldname": "contact_person",
@@ -91,7 +91,7 @@
    "link_fieldname": "visit_plan_reference"
   }
  ],
- "modified": "2024-06-06 07:57:50.508052",
+ "modified": "2024-07-15 10:38:46.298694",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit Plan CD",
