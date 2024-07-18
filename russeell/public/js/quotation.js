@@ -204,11 +204,11 @@ let calculate_total_hours = function(frm){
 let calculate_admin_fees = function(frm){
     frappe.db.get_single_value('Russeell Setting', 'admin_fees_percentage')
     .then(fees => {
-        let sub_total = (frm.doc.custom_man_power_grand_total || 0
-            + frm.doc.custom_consumption_tools_grand_total || 0
-            + frm.doc.custom_equipment_grand_total || 0
-            + frm.doc.custom_vehicle_grand_total || 0
-            + frm.doc.custom_other_cost_grand_total || 0 )
+        let sub_total = ((frm.doc.custom_man_power_grand_total || 0)
+            + (frm.doc.custom_consumption_tools_grand_total || 0)
+            + (frm.doc.custom_equipment_grand_total || 0)
+            + (frm.doc.custom_vehicle_grand_total || 0)
+            + (frm.doc.custom_other_cost_grand_total || 0 ))
         let admin_fees = parseFloat(((sub_total * fees) / 100).toFixed(2))
 
     frm.set_value("custom_sub_grand_total", parseFloat(sub_total.toFixed(2)));
