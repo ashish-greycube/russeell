@@ -30,7 +30,8 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Sales Order",
-   "options": "Sales Order"
+   "options": "Sales Order",
+   "read_only": 1
   },
   {
    "fieldname": "contract",
@@ -51,7 +52,8 @@
    "fieldname": "contact_person",
    "fieldtype": "Link",
    "label": "Contact Person",
-   "options": "Contact"
+   "options": "Contact",
+   "read_only": 1
   },
   {
    "fieldname": "visit_details_section",
@@ -69,7 +71,8 @@
    "fieldname": "customer_address",
    "fieldtype": "Link",
    "label": "Customer Address",
-   "options": "Address"
+   "options": "Address",
+   "read_only": 1
   },
   {
    "fieldname": "address_display",
@@ -81,7 +84,8 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options": "Customer"
+   "options": "Customer",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -91,7 +95,7 @@
    "link_fieldname": "visit_plan_reference"
   }
  ],
- "modified": "2024-07-15 10:38:46.298694",
+ "modified": "2024-07-17 09:59:25.834948",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit Plan CD",

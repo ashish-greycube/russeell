@@ -17,6 +17,10 @@ class VisitCD(Document):
 			visit_plan.save(ignore_permissions=True)
 			
 	def validate(self):
+		self.validate_planned_visit_date()
+		self.validate_visit_status_with_si_status()
+
+	def validate_planned_visit_date(self):
 		if self.planned_visit_date:
 
 			# validate planned visit date
@@ -31,22 +35,15 @@ class VisitCD(Document):
 			old_doc = self.get_doc_before_save()
 			if changed_date and old_doc.planned_visit_date == None:
 				set_count_of_visits_in_a_slot(self.sales_order, self.planned_visit_date)
-				print("Date Change From {0} to {1}".format(changed_date, self.planned_visit_date))
-			else:
+			elif changed_date:
 				frappe.throw(_('You Cann`t Change Planned Visit Date'))
+			else:
+				pass
 
-			# old_doc = self.get_doc_before_save()
-			# print(old_doc.planned_visit_date, type(old_doc.planned_visit_date), '------old doc planned_visit_date')
-			# if old_doc.planned_visit_date == self.planned_visit_date:
-			# 	print("Date is not changed!")
-			# else: 
-			# 	print("Date Change From {0} to {1}".format(old_doc.planned_visit_date, self.planned_visit_date),)
-
-			# print(self.planned_visit_date, type(old_doc.planned_visit_date), '-------new doc planned_visit_date')
-
-		# if self.assign_to:
-		# 	old_doc = self.get_doc_before_save()
-		# 	if old_doc.assign_to == self.assign_to:
-		# 		print("assign_to is not changed!")
-		# 	else: 
-		# 		print("assign_to Change From {0} to {1}".format(old_doc.assign_to, self.assign_to))
+	def validate_visit_status_with_si_status(self):
+		if self.visit_status == "Completed" or self.visit_status == "Customer Cancelled":
+			so_doc = frappe.get_doc('Sales Order', self.sales_order)
+			if so_doc.custom_billing_type != None and so_doc.custom_billing_type != "Rear-Monthly" and so_doc.custom_billing_type != "Rear-Quaterly" and so_doc.custom_billing_type != "Rear-HalfYearly":
+				si = frappe.get_doc('Sales Invoice', self.sales_invoice_reference)
+				if si.status != 'Paid':
+					frappe.throw(_('You can`t change visit status until sales invoice not paid'))

@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestTerminationRequest(FrappeTestCase):
+class TestTerminationRequestCD(FrappeTestCase):
 	pass

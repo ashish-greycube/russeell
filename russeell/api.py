@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe import msgprint, _
 from frappe.utils import flt, getdate, nowdate, add_to_date
-from datetime import datetime  
+from datetime import datetime
 
 def validate_quotation_cost_section(self, method):
   
@@ -13,26 +13,28 @@ def validate_quotation_cost_section(self, method):
 
     total_hours = (self.custom_total_no_of_visits or 0) * (self.custom_visit_duration_hrs or 0)
 
+    # total_hours
     old_doc = self.get_doc_before_save()
     if old_doc and (old_doc.custom_total_hours == None or old_doc.custom_total_hours == 0):
         self.custom_total_hours = total_hours
+        
+    total_hours_changed = self.has_value_changed("custom_total_hours")
+    if total_hours_changed and (self.custom_total_hours == 0 or self.custom_total_hours == None):
+        self.custom_total_hours = total_hours
 
-    # total_hours_changed = self.has_value_changed("custom_total_hours")
-    # if total_hours_changed and (self.custom_total_hours == 0 or self.custom_total_hours == None):
-    #     self.custom_total_hours = total_hours
-
+    # over-time hours
     if self.custom_total_hours and self.custom_total_hours >= no_of_hours_in_a_month:
         self.custom_normal_hours_without_overtime = no_of_hours_in_a_month
-        self.custom_overtime_hours = self.custom_total_hours - self.custom_normal_hours_without_overtime
+        self.custom_calculated_overtime_hours = self.custom_total_hours - self.custom_normal_hours_without_overtime
     else:
         self.custom_normal_hours_without_overtime = self.custom_total_hours
-        self.custom_overtime_hours = ""
+        self.custom_calculated_overtime_hours = ""
     
     # calculate man power cost
     grand_total = 0
     for row in self.get('custom_man_power_cost'):
          row.normal_hour_total_cost = flt((row.qty * (row.cost_per_hour or 0) * (self.custom_total_hours or 0)),2)
-         row.overtime_hour_total_cost = flt((row.qty * (row.overtime_per_hour or 0)),2) + flt(self.custom_overtime_hours)
+         row.overtime_hour_total_cost = flt((row.qty * (row.overtime_per_hour or 0)),2) * flt((self.custom_actual_overtime_hours or 0),2)
          row.net_total = flt((row.normal_hour_total_cost + row.overtime_hour_total_cost),2)
          grand_total = grand_total + row.net_total
     
@@ -83,25 +85,37 @@ def validate_quotation_cost_section(self, method):
     self.custom_total_estimated_cost = sub_total + self.custom_admin_fees
 
     sales_markup_percentage = frappe.db.get_single_value('Russeell Setting', 'suggested_sales_markup_percentage')
-    self.custom_suggested_sales_rate =((self.custom_total_estimated_cost * (sales_markup_percentage or 0)) / 100)+self.custom_total_estimated_cost
+    self.custom_suggested_sales_amount =((self.custom_total_estimated_cost * (sales_markup_percentage or 0)) / 100)+self.custom_total_estimated_cost
 
     # validate item table
 
-    if len(self.items) > 1:
-        frappe.throw(_('You cann`t add multiple items in Items table.'))
+    if self.custom_quotation_type == 'Visit' or self.custom_quotation_type == 'Station':
+        if len(self.items) > 1:
+            frappe.throw(_('You cann`t add multiple items in Items table.'))
 
-    print(self.custom_total_no_of_visits, '---custom_total_no_of_visits')
-    for item in self.items:
-        if self.custom_total_no_of_visits > 0:
-            item.qty = self.custom_total_no_of_visits
-        if self.custom_suggested_sales_rate > 0:
-            item.rate = self.custom_suggested_sales_rate
+        default_uom = frappe.db.get_value('Item', self.items[0].item_code, 'is_stock_item')
+        if default_uom == 1:
+            frappe.throw(_('Only service items are allowed'))
 
-        if item.rate > self.custom_suggested_sales_rate:
-            frappe.throw(_('Item rate cann`t be less than suggested sales rate'))
+    # print(self.custom_total_no_of_visits, '---custom_total_no_of_visits')
+    # for item in self.items:
+    #     if self.custom_total_no_of_visits and self.custom_total_no_of_visits > 0 and self.custom_suggested_sales_rate and self.custom_suggested_sales_rate > 0:
+    #         frappe.msgprint(_("In row {0} of item table qty and rate should be {1} and {2} <br> Please check qty and rate if require")
+    #                         .format(item.idx, self.custom_total_no_of_visits, flt((self.custom_suggested_sales_rate),2)))
+        # if self.custom_suggested_sales_rate and self.custom_suggested_sales_rate > 0:
+        #     item.rate = self.custom_suggested_sales_rate
+
+def validate_item_rate(self, method):
+    if self.custom_quotation_type == 'Visit' or self.custom_quotation_type == 'Station':
+        for item in self.items:
+            if self.custom_sales_qty:
+                suggested_sales_rate = flt((self.custom_suggested_sales_amount / self.custom_sales_qty),2)
+                if item.rate < suggested_sales_rate:
+                    frappe.throw(_('Item rate cann`t be less than suggested sales rate'))
     
 
 
+# Sales Order
 def check_contact_end_date(self, method):
 
     # CSD & CED not be none & CED not less than CSD & 1 year 
@@ -190,17 +204,17 @@ def set_so_billing_period_slots(self, method):
                     slot_start_date = slot
 
 # will use when we auto create si    
-def get_si_validity_range(self):
-    so = self.items[0].sales_order
-    visit_list = frappe.db.get_all('Visit CD',
-                              filters={'sales_order':so, 
-                                       'planned_visit_date': ('between', [self.custom_slot_start_date, self.custom_slot_end_date])},
-                                fields=['name','sales_invoice_reference', 'visit_status'])
+# def get_si_validity_range(self):
+#     so = self.items[0].sales_order
+#     visit_list = frappe.db.get_all('Visit CD',
+#                               filters={'sales_order':so, 
+#                                        'planned_visit_date': ('between', [self.custom_slot_start_date, self.custom_slot_end_date])},
+#                                 fields=['name','sales_invoice_reference', 'visit_status'])
     
-    for visit in visit_list:
-        if visit.visit_status == "Completed" or visit.visit_status == "Customer Cancelled":
-            visit.sales_invoice_reference = self.name
-            visit.save()
+#     for visit in visit_list:
+#         if visit.visit_status == "Completed" or visit.visit_status == "Customer Cancelled":
+#             visit.sales_invoice_reference = self.name
+#             visit.save()
 
 def set_count_of_visits_in_a_slot(so, planned_visit_date):
     doc = frappe.get_doc('Sales Order', so)
@@ -241,6 +255,8 @@ def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
    
     visit_plan.save(ignore_permissions=True)
 
+    frappe.db.set_value('Sales Order', sale_order, 'custom_visit_plan', visit_plan.name)
+
     so_items = frappe.db.get_list("Sales Order Item", parent_doctype="Sales Order", filters={'parent': sale_order},fields=['item_code', 'item_name'],)
 
     for visit in range(int(no_of_visit)):
@@ -254,14 +270,14 @@ def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
         for item in so_items:
             visit.append("service_list",{"item_code": item.item_code, "item_name":item.item_name})
         visit.save(ignore_permissions=True)
-        frappe.msgprint(_("Visit {0} is created").format(visit.name), alert=True)
+        # frappe.msgprint(_("Visit {0} is created").format(visit.name), alert=True)
 
     visit_details = frappe.db.get_list("Visit CD", filters={'visit_plan_reference': visit_plan.name}, fields=['name'], order_by="creation asc")
 
     for vp in visit_details:
         visit_plan.append("visit_table",{"visit_no": vp.name})
         visit_plan.save(ignore_permissions=True)
-    frappe.msgprint(_("Visit Plan {0} is created").format(visit_plan.name), alert=True)
+    frappe.msgprint(_("Visit Plan {0} and {1} visits are created").format(visit_plan.name, no_of_visit), alert=True)
 
     return visit_plan, visit
     # return visit_plan.name
@@ -279,17 +295,17 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
     for item in doc.items:
         row = si.append('items', {})
         row.item_code = item.item_code
+        # uom = frappe.db.get_value('Item', item.item_code, 'stock_uom')
         row.qty = no_of_visits
         row.sales_order = sales_order
         row.so_detail=item.name
-
-    si.run_method("set_missing_values")	
+        # row.uom=uom
+   
+    si.run_method("set_missing_values")
     si.run_method("calculate_taxes_and_totals")
-    # si.set_payment_schedule()
-
-    # si.run_method("set_po_nos")
-    # si.run_method("set_use_serial_batch_fields")
-    # print(si.custom_slot_start_date, '--si.custom_slot_start_date', si.custom_slot_end_date, '--si.custom_slot_end_date')
+    si.run_method("set_payment_schedule")
+    si.run_method("set_po_nos")
+    si.run_method("set_use_serial_batch_fields")
 
     si.save(ignore_permissions=True)
     frappe.msgprint(_("Sales Invoice {0} Created").format(si.name), alert=True)
@@ -306,26 +322,23 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
     visit_list = frappe.db.get_all('Visit CD', filters={'sales_order': sales_order,
                                                         'planned_visit_date': ['between', [slot_start_date, slot_end_date]]},
                                                 fields=['name'])
-    # print(visit_list, '-----visit_list')
 
     if len(visit_list) > 0:
         
         for visit in visit_list:
             frappe.db.set_value('Visit CD', visit.name, 'sales_invoice_reference', si.name)
 
-    # print(sales_order, '------sale_order')
-    # print(slot_start_date, slot_start_date, '---------billing_period_slot')
-    # print(no_of_visits, '---------no_of_visits')
-
 def create_si_for_advance_billing_type():
    
-    # print('-------------------create_si_for_advance_billing_type----------------------')
-    billing_period_slots_list = frappe.db.get_all('Billing Period Slots CT', filters={'slot_start_date': nowdate(),
-                                                        'sales_invoice_ref': None}, 
-                                                        fields=['parent', 'slot_start_date', 'slot_end_date', 'no_of_visits'])
-    print(nowdate())
-    print(billing_period_slots_list, '---billing_period_slots_list')
+    print('-------------------create_si_for_advance_billing_type----------------------')
     
+    now = getdate(nowdate())
+    billing_period_slots_list = frappe.db.get_all('Billing Period Slots CT', parent_doctype='Sales Order',
+                                                  filters={'slot_start_date': ['=',now],
+                                                           'sales_invoice_ref': ['=','']}, 
+                                                        fields=['parent', 'slot_start_date', 'slot_end_date', 'no_of_visits'])
+    print(billing_period_slots_list, '---billing_period_slots_list')
+
     if len(billing_period_slots_list) > 0:
         for billing_slot in billing_period_slots_list:
             print(billing_slot, '----billing_slot')
@@ -338,18 +351,44 @@ def create_si_for_advance_billing_type():
                                 fields=['name'])
             if len(so_list) > 0:
                 for so in so_list:
-                    print(so, '------so')
-                    si_item = frappe.db.get_all("Sales Invoice Item", 
-                                                filters={"sale_order": so.name}, fields=['parent'])
+
+                    # si_item = frappe.db.get_all('Sales Invoice Item',
+                    #                             parent_doctype='Sales Invoice', 
+                    #                             filters={'sales_order': so.name}, fields=['parent'])
+                    
                     print(so.name,'--so.name--', billing_slot.slot_start_date, '--billing_slot.slot_start_date--'
                           ,billing_slot.slot_end_date, '--billing_slot.slot_end_date--',billing_slot.no_of_visits, '--billing_slot.no_of_visits--')
                     
-                    if len(si_item) > 0 and frappe.db.exists("Sales Invoice", {"name": si_item[0].parent, 
-                                                                               "custom_slot_start_date": billing_slot.slot_start_date}):
-                        print('in if condition')
-                        break
-                    else:
-                        from russeell.api import make_sales_invoice
-                        print('in else condition')
-                        make_sales_invoice(so.name, billing_slot.slot_start_date, billing_slot.slot_end_date, billing_slot.no_of_visits)  
+                    # if len(si_item) > 0 and frappe.db.exists("Sales Invoice", {"name": si_item[0].parent, 
+                    #                                                            "custom_slot_start_date": billing_slot.slot_start_date}):
+                    #     print('in if condition')
+                    #     break
+                    # else:
+                    from russeell.api import make_sales_invoice
+                    # print('in else condition')
+                    make_sales_invoice(so.name, billing_slot.slot_start_date, billing_slot.slot_end_date, billing_slot.no_of_visits)  
+
+
+def create_si_for_rear_billing_type():
+    print('-------------------create_si_for_rear_billing_type----------------------')
+    now = getdate(nowdate())
+
+    billing_period_slots_list = frappe.db.get_all('Billing Period Slots CT', parent_doctype='Sales Order',
+                                                  filters={'slot_end_date': ['=',now],
+                                                           'sales_invoice_ref': ['=','']}, 
+                                                        fields=['parent', 'slot_start_date', 'slot_end_date', 'no_of_visits'])
+
+    if len(billing_period_slots_list) > 0:
+        for billing_slot in billing_period_slots_list:
+
+            so_list = frappe.db.get_all('Sales Order',
+                                filters={'custom_billing_type': ['in', ['Rear-Monthly', 'Rear-Quaterly', 'Rear-HalfYearly']],
+                                         'name': billing_slot.parent,
+                                         'docstatus': 1,
+                                         'status': ['!=', 'Closed']},
+                                fields=['name'])
+            if len(so_list) > 0:
+                for so in so_list:
                     
+                    from russeell.api import make_sales_invoice
+                    make_sales_invoice(so.name, billing_slot.slot_start_date, billing_slot.slot_end_date, billing_slot.no_of_visits)

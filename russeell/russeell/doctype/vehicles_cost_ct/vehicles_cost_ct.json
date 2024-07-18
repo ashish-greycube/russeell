@@ -7,8 +7,11 @@
  "engine": "InnoDB",
  "field_order": [
   "vehicle_name",
+  "column_break_gqca",
   "qty",
+  "section_break_pxhc",
   "cost_per_hour",
+  "column_break_yyza",
   "net_total"
  ],
  "fields": [
@@ -37,18 +40,31 @@
    "read_only": 1
   },
   {
+   "description": "(Qty * Cost Per Hour)",
    "fieldname": "net_total",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Net Total",
    "precision": "2",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_gqca",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_pxhc",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_yyza",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-05-29 12:53:26.905447",
+ "modified": "2024-07-18 14:00:03.499143",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Vehicles Cost CT",

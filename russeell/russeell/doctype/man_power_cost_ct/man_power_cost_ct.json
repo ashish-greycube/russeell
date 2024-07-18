@@ -7,11 +7,15 @@
  "engine": "InnoDB",
  "field_order": [
   "employee_type",
+  "column_break_hqyx",
   "qty",
+  "section_break_yfsd",
   "cost_per_hour",
   "overtime_per_hour",
+  "column_break_ocgc",
   "normal_hour_total_cost",
   "overtime_hour_total_cost",
+  "net_total_section",
   "net_total"
  ],
  "fields": [
@@ -44,14 +48,17 @@
   },
   {
    "columns": 1,
+   "fetch_from": "employee_type.overtime_rate_per_hour",
    "fieldname": "overtime_per_hour",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "OverTime Per Hour",
-   "precision": "2"
+   "label": "OverTime Rate Per Hour",
+   "precision": "2",
+   "read_only": 1
   },
   {
    "columns": 2,
+   "description": "(Qty * Cost Per Hour * Total Hours)",
    "fieldname": "normal_hour_total_cost",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -61,6 +68,7 @@
   },
   {
    "columns": 2,
+   "description": "(Actual Over-time hours * Qty * OverTime Rate Per Hours)",
    "fieldname": "overtime_hour_total_cost",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -70,18 +78,36 @@
   },
   {
    "columns": 1,
+   "description": "(Normal Hour Total Cost + OverTime Hour Total Cost)",
    "fieldname": "net_total",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Net Total",
    "precision": "2",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_hqyx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "net_total_section",
+   "fieldtype": "Section Break",
+   "label": "Net Total"
+  },
+  {
+   "fieldname": "section_break_yfsd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ocgc",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-06-03 07:27:28.901490",
+ "modified": "2024-07-18 13:53:48.215035",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Man Power Cost CT",

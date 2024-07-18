@@ -9,7 +9,8 @@
   "man_power_type",
   "man_power_detail",
   "total_cost_per_month",
-  "total_cost_per_hour"
+  "total_cost_per_hour",
+  "overtime_rate_per_hour"
  ],
  "fields": [
   {
@@ -43,11 +44,18 @@
    "label": "Total Cost Per Hour",
    "precision": "2",
    "read_only": 1
+  },
+  {
+   "fieldname": "overtime_rate_per_hour",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Overtime Rate Per Hour",
+   "precision": "2"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-05 14:50:34.314582",
+ "modified": "2024-07-18 06:46:46.875841",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Man Power CD",

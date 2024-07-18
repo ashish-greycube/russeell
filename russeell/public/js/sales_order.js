@@ -1,7 +1,6 @@
 frappe.ui.form.on("Sales Order", {
     refresh: function (frm) {
-        // console.log(frm.doc.custom_billing_period_slot[0].no_of_visits)
-        if (frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold" && frm.doc.custom_total_no_of_visits !== 0) {
+        if (frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold" && frm.doc.custom_total_no_of_visits !== 0 && frm.doc.custom_visit_plan === undefined) {
             frm.add_custom_button(__("Visit Plan"), () => {
                 make_visit_pan(frm)
             }
@@ -17,10 +16,28 @@ frappe.ui.form.on("Sales Order", {
             && frm.doc.custom_billing_type != "Rear-Monthly"
             && frm.doc.custom_billing_type != "Rear-Quaterly"
             && frm.doc.custom_billing_type != "Rear-HalfYearly"){
-                // console.log('condition!!!!!!!')
+                
                 frm.add_custom_button(__("Initial Sales Invoice"), () => {
-                    make_sales_invoice(frm)
-                })  
+                    frappe.db.get_list('Visit CD', {
+                        fields: ['planned_visit_date', 'name'],
+                        filters: {
+                            sales_order: frm.doc.name
+                        }
+                    }).then(records => {
+                        let visit_date=[]
+                        records.forEach(visit => {
+                            if (!visit.planned_visit_date){
+                                visit_date.push(visit.name)
+                            }
+                        });
+                        if(visit_date.length > 0){
+                            frappe.throw(__('please add planned visit date in all visits'))
+                        }
+                        else{
+                            make_sales_invoice(frm)
+                        }
+                    })
+                }).css({'background-color':'#52c4e6','color':'white'});
             }
     }
 })

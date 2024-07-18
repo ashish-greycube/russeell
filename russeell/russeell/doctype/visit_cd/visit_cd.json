@@ -53,6 +53,7 @@
    "default": "Open",
    "fieldname": "visit_status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Visit Status",
    "options": "\nOpen\nScheduled\nCompleted\nCustomer Cancelled\nCompany Cancelled\nTerminated"
   },
@@ -86,6 +87,7 @@
   {
    "fieldname": "visit_plan_reference",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Visit Plan Reference",
    "read_only": 1
   },
@@ -121,12 +123,13 @@
   {
    "fieldname": "planned_visit_date",
    "fieldtype": "Date",
+   "in_list_view": 1,
    "label": "Planned Visit Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-12 08:01:51.283161",
+ "modified": "2024-07-18 14:02:06.883273",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",

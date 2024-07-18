@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "format: TR ({so_reference})",
  "creation": "2024-07-12 07:35:05.601283",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -8,6 +9,7 @@
   "section_break_vgqc",
   "date",
   "customer",
+  "no_of_visit_done",
   "no_of_credit_note",
   "no_of_visits_in_si_itemqty",
   "amended_from",
@@ -15,6 +17,7 @@
   "column_break_mlzl",
   "so_reference",
   "contract_start_date",
+  "no_of_pending_visit",
   "no_of_actual_credit_note",
   "no_of_actual_visits_in_si"
  ],
@@ -43,7 +46,9 @@
    "fieldname": "so_reference",
    "fieldtype": "Link",
    "label": "SO Reference",
-   "options": "Sales Order"
+   "link_filters": "[[\"Sales Order\",\"status\",\"=\",\"Closed\"]]",
+   "options": "Sales Order",
+   "unique": 1
   },
   {
    "fetch_from": "so_reference.customer",
@@ -88,15 +93,30 @@
    "fieldname": "notes",
    "fieldtype": "Small Text",
    "label": "Notes"
+  },
+  {
+   "fieldname": "no_of_visit_done",
+   "fieldtype": "Int",
+   "label": "No of Visit Done",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "no_of_pending_visit",
+   "fieldtype": "Int",
+   "label": "No of Pending Visit",
+   "non_negative": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-07-12 08:39:32.763497",
+ "modified": "2024-07-16 13:37:56.144512",
  "modified_by": "Administrator",
  "module": "Russeell",
- "name": "Termination Request",
+ "name": "Termination Request CD",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

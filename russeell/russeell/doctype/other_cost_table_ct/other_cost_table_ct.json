@@ -7,8 +7,11 @@
  "engine": "InnoDB",
  "field_order": [
   "other_cost",
+  "column_break_coku",
   "qty",
+  "section_break_pfyb",
   "cost_per_hour",
+  "column_break_bmum",
   "net_total"
  ],
  "fields": [
@@ -28,6 +31,7 @@
    "precision": "0"
   },
   {
+   "description": "(Qty * Cost Per Hour)",
    "fieldname": "net_total",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -43,12 +47,24 @@
    "label": "Cost Per Hour",
    "precision": "2",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_coku",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_pfyb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_bmum",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-06-03 07:14:55.679158",
+ "modified": "2024-07-18 13:58:29.068518",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Other Cost Table CT",
