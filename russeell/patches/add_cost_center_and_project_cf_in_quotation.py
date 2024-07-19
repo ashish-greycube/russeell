@@ -8,23 +8,13 @@ def execute():
 				"fieldname":'cost_center',
 				"label":"Cost Center",
 				"fieldtype":'Link',
-				"insert_after":'custom_payment_type',
+				"insert_after":'territory',
 				"options":'Cost Center',
 				"is_custom_field":1,
 				"is_system_generated":0,
 				"read_only":0
 				
-            },			
-			{
-				"fieldname": "project",
-				"label":"Project",
-				"fieldtype": "Link",
-				"insert_after": 'cost_center',
-				"options":'Project',
-				"is_custom_field":1,
-				"is_system_generated":0,
-				"read_only":0
-			},			
+            },					
 		]
 	}
 	

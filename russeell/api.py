@@ -291,10 +291,17 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
     si.custom_slot_start_date = getdate(slot_start_date)
     si.custom_slot_end_date = getdate(slot_end_date)
     si.due_date = nowdate()
+    si.custom_business_unit = doc.custom_business_unit
+    si.cost_center = doc.cost_center
+    si.custom_city = doc.custom_city
+    si.territory = doc.territory
+    si.project = doc.project
+
 
     for item in doc.items:
         row = si.append('items', {})
         row.item_code = item.item_code
+        row.rate = item.rate
         # uom = frappe.db.get_value('Item', item.item_code, 'stock_uom')
         row.qty = no_of_visits
         row.sales_order = sales_order
@@ -308,6 +315,7 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
     si.run_method("set_use_serial_batch_fields")
 
     si.save(ignore_permissions=True)
+    print(si.name, '---si.name')
     frappe.msgprint(_("Sales Invoice {0} Created").format(si.name), alert=True)
 
     # add si ref in visit
@@ -347,7 +355,7 @@ def create_si_for_advance_billing_type():
                                 filters={'custom_billing_type': ['not in', [None, 'Rear-Monthly', 'Rear-Quaterly', 'Rear-HalfYearly']],
                                          'name': billing_slot.parent,
                                          'docstatus': 1,
-                                         'status': ['!=', 'Closed']},
+                                         'status': ['not in', ['Closed', 'On Hold']]},
                                 fields=['name'])
             if len(so_list) > 0:
                 for so in so_list:
@@ -385,7 +393,7 @@ def create_si_for_rear_billing_type():
                                 filters={'custom_billing_type': ['in', ['Rear-Monthly', 'Rear-Quaterly', 'Rear-HalfYearly']],
                                          'name': billing_slot.parent,
                                          'docstatus': 1,
-                                         'status': ['!=', 'Closed']},
+                                         'status': ['not in', ['Closed', 'On Hold']]},
                                 fields=['name'])
             if len(so_list) > 0:
                 for so in so_list:

@@ -41,13 +41,15 @@
    "fieldname": "customer_name",
    "fieldtype": "Link",
    "label": "Customer Name",
-   "options": "Customer"
+   "options": "Customer",
+   "read_only": 1
   },
   {
    "fieldname": "contact_person",
    "fieldtype": "Link",
    "label": "Contact Person",
-   "options": "Contact"
+   "options": "Contact",
+   "read_only": 1
   },
   {
    "default": "Open",
@@ -95,7 +97,8 @@
    "fieldname": "customer_address",
    "fieldtype": "Link",
    "label": "Customer Address",
-   "options": "Address"
+   "options": "Address",
+   "read_only": 1
   },
   {
    "fieldname": "address_display",
@@ -129,7 +132,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-18 14:02:06.883273",
+ "modified": "2024-07-19 13:09:43.205001",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",

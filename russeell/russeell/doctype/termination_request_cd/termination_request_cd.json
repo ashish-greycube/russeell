@@ -8,18 +8,19 @@
  "field_order": [
   "section_break_vgqc",
   "date",
-  "customer",
+  "so_reference",
   "no_of_visit_done",
   "no_of_credit_note",
   "no_of_visits_in_si_itemqty",
   "amended_from",
   "notes",
   "column_break_mlzl",
-  "so_reference",
+  "customer",
   "contract_start_date",
   "no_of_pending_visit",
   "no_of_actual_credit_note",
-  "no_of_actual_visits_in_si"
+  "no_of_actual_visits_in_si",
+  "termination_sales_invoice"
  ],
  "fields": [
   {
@@ -31,7 +32,7 @@
    "fieldtype": "Link",
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Termination Request",
+   "options": "Termination Request CD",
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
@@ -46,7 +47,7 @@
    "fieldname": "so_reference",
    "fieldtype": "Link",
    "label": "SO Reference",
-   "link_filters": "[[\"Sales Order\",\"status\",\"=\",\"Closed\"]]",
+   "link_filters": "[[\"Sales Order\",\"status\",\"not in\",[\"Closed\",\"On Hold\",null]]]",
    "options": "Sales Order",
    "unique": 1
   },
@@ -55,35 +56,44 @@
    "fieldname": "customer",
    "fieldtype": "Link",
    "label": "Customer",
-   "options": "Customer"
+   "options": "Customer",
+   "read_only": 1
   },
   {
    "fetch_from": "so_reference.custom_contract_start_date",
    "fieldname": "contract_start_date",
    "fieldtype": "Date",
-   "label": "Contract Start Date "
+   "label": "Contract Start Date ",
+   "read_only": 1
   },
   {
+   "depends_on": "eval:doc.no_of_credit_note>0",
    "fieldname": "no_of_credit_note",
    "fieldtype": "Int",
    "label": "No of Credit Note",
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.no_of_credit_note>0",
    "fieldname": "no_of_actual_credit_note",
    "fieldtype": "Int",
-   "label": "No of Actual Credit Note"
+   "label": "No of Actual Credit Note",
+   "mandatory_depends_on": "eval:doc.no_of_credit_note"
   },
   {
+   "depends_on": "eval:doc.no_of_visits_in_si_itemqty > 0",
    "fieldname": "no_of_visits_in_si_itemqty",
    "fieldtype": "Int",
    "label": "No of Visits in SI Item(Qty)",
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.no_of_visits_in_si_itemqty > 0",
    "fieldname": "no_of_actual_visits_in_si",
    "fieldtype": "Int",
-   "label": "No of Actual Visits in SI"
+   "label": "No of Actual Visits in SI",
+   "mandatory_depends_on": "eval:doc.no_of_visits_in_si_itemqty",
+   "non_negative": 1
   },
   {
    "fieldname": "column_break_mlzl",
@@ -107,12 +117,19 @@
    "label": "No of Pending Visit",
    "non_negative": 1,
    "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "termination_sales_invoice",
+   "fieldtype": "Data",
+   "label": "Credit Note/ Sales Invoice",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-07-16 13:37:56.144512",
+ "modified": "2024-07-19 14:59:05.639858",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Termination Request CD",

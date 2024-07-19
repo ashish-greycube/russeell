@@ -1,29 +1,49 @@
 // // Copyright (c) 2024, GreyCube Technologies and contributors
 // // For license information, please see license.txt
 
-// frappe.ui.form.on("Termination Request CD", {
-// 	so_reference: function(frm) {
-//         if(frm.doc.so_reference){
-//             frappe.call({
-//                 method:"russeell.russeell.doctype.termination_request.termination_request.get_no_of_credit_note_for_advance",
-//                 args: {
-//                     so_name: frm.doc.so_reference,
-//                     to_date: frm.doc.date
-//                 },
-//                 callback: function(r) {
-//                     if(r.message){
-//                         // console.log(r.message)
+frappe.ui.form.on("Termination Request CD", {
+	refresh: function (frm) {
+        if (frm.doc.docstatus == 1 && frm.doc.no_of_credit_note !== 0 && frm.doc.termination_sales_invoice === undefined) {
+            frm.add_custom_button(__("Return/Credit Note"), () => {
+                make_credit_note(frm)
+            });
+        }
+        else if(frm.doc.docstatus == 1 && frm.doc.no_of_visits_in_si_itemqty !== 0 && frm.doc.termination_sales_invoice === undefined){
+            frm.add_custom_button(__("Sales Invoice"), () => {
+                make_sales_invoice(frm)
+            });
+        }
+    }
+});
 
-//                         let no_of_visit_done = r.message[0]
-//                         let no_of_pending_visit = r.message[1]
+function make_credit_note(frm){
+    frappe.call({
+        method: "russeell.russeell.doctype.termination_request_cd.termination_request_cd.make_credit_note",
+        args: {
+            sales_order: frm.doc.so_reference,
+            slot_date: frm.doc.date,
+            si_item_qty: frm.doc.no_of_actual_visits_in_si
+        },
+        callback: function (r) {
+            if(r.message){
+                frm.set_value('termination_sales_invoice', r.message)
+            }
+        }
+    })
+}
 
-//                         frm.set_value('no_of_visit_done', no_of_visit_done)
-//                         frm.set_value('no_of_pending_visit', no_of_pending_visit)
-
-//                         // console.log(no_of_visit_done, 'no_of_visit_done', no_of_pending_visit, 'no_of_pending_visit')
-//                     }
-//                 }
-//             })
-//         }
-// 	},
-// });
+function make_sales_invoice(frm) {
+    frappe.call({
+        method: "russeell.russeell.doctype.termination_request_cd.termination_request_cd.make_sales_invoice",
+        args: {
+            sales_order: frm.doc.so_reference,
+            slot_date: frm.doc.date,
+            si_item_qty: frm.doc.no_of_actual_visits_in_si
+        },
+        callback: function (r) {
+            if(r.message){
+                frm.set_value('termination_sales_invoice', r.message)
+            }
+        }
+    })
+}
