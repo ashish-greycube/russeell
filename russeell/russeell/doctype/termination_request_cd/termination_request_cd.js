@@ -40,6 +40,7 @@ function make_sales_invoice(frm) {
     frappe.call({
         method: "russeell.russeell.doctype.termination_request_cd.termination_request_cd.make_sales_invoice",
         args: {
+            termination_req: frm.doc.name,
             sales_order: frm.doc.so_reference,
             slot_date: frm.doc.date,
             si_item_qty: frm.doc.no_of_actual_visits_in_si

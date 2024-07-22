@@ -133,7 +133,8 @@ class TerminationRequestCD(Document):
 		print('set_status_of_visit_and_visit_plan_for_rear')
 
 @frappe.whitelist()
-def make_sales_invoice(sales_order, slot_date, si_item_qty):
+def make_sales_invoice(sales_order, slot_date, si_item_qty, termination_req):
+	termination = frappe.get_doc('Termination Request CD', termination_req)
 	# print(sales_order, slot_date, si_item_qty)
 	doc = frappe.get_doc('Sales Order', sales_order)
 	si = frappe.new_doc("Sales Invoice")
@@ -168,6 +169,8 @@ def make_sales_invoice(sales_order, slot_date, si_item_qty):
 
 	print(si.name, '---si.name')
 	frappe.db.set_value('Sales Order', doc.name, 'status', 'Closed')
+	frappe.db.set_value('Termination Request CD', termination.name, 'termination_sales_invoice', si.name)
+	# termination.update({'termination_sales_invoice': si.name})
 	frappe.msgprint(_("Sales Invoice {0} Created").format(si.name), alert=True)
 
 	return si.name
