@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"IvnuC-Kb_7\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Russeell</span>\",\"col\":12}},{\"id\":\"5v2CSXTqJH\",\"type\":\"card\",\"data\":{\"card_name\":\"Transaction\",\"col\":4}},{\"id\":\"CwU2aoktC_\",\"type\":\"card\",\"data\":{\"card_name\":\"Visit\",\"col\":4}},{\"id\":\"yWUSC8nWZb\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Termination Request CD\",\"col\":3}},{\"id\":\"Ad2AlJfgRR\",\"type\":\"card\",\"data\":{\"card_name\":\"Master\",\"col\":4}}]",
+ "content": "[{\"id\":\"IvnuC-Kb_7\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Russeell</span>\",\"col\":12}},{\"id\":\"5v2CSXTqJH\",\"type\":\"card\",\"data\":{\"card_name\":\"Transaction\",\"col\":4}},{\"id\":\"CwU2aoktC_\",\"type\":\"card\",\"data\":{\"card_name\":\"Visit\",\"col\":4}},{\"id\":\"yWUSC8nWZb\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Termination Request\",\"col\":3}},{\"id\":\"Ad2AlJfgRR\",\"type\":\"card\",\"data\":{\"card_name\":\"Master\",\"col\":4}}]",
  "creation": "2024-06-03 06:45:14.654886",
  "custom_blocks": [],
  "docstatus": 0,
@@ -171,7 +171,7 @@
    "type": "Link"
   }
  ],
- "modified": "2024-07-21 16:23:13.244723",
+ "modified": "2024-07-22 16:14:23.565264",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Russeell",
@@ -186,7 +186,7 @@
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Termination Request CD",
+   "label": "Termination Request",
    "link_to": "Termination Request CD",
    "stats_filter": "[]",
    "type": "DocType"
