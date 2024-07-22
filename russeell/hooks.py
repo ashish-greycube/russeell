@@ -145,6 +145,13 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
+scheduler_events = {
+    "daily": [
+		"russeell.api.create_si_for_advance_billing_type",
+        "russeell.api.create_si_for_rear_billing_type"
+	],
+}
+
 # scheduler_events = {
 # 	"all": [
 # 		"russeell.tasks.all"

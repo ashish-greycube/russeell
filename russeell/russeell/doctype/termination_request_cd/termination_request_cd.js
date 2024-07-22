@@ -20,13 +20,17 @@ function make_credit_note(frm){
     frappe.call({
         method: "russeell.russeell.doctype.termination_request_cd.termination_request_cd.make_credit_note",
         args: {
+            termination_req: frm.doc.name,
             sales_order: frm.doc.so_reference,
             slot_date: frm.doc.date,
-            si_item_qty: frm.doc.no_of_actual_visits_in_si
+            si_item_qty: frm.doc.no_of_actual_credit_note
         },
         callback: function (r) {
             if(r.message){
-                frm.set_value('termination_sales_invoice', r.message)
+                console.log(r.message)
+                // frm.set_value('termination_sales_invoice', r.message)
+                // submit()
+                // frm.save()
             }
         }
     })
