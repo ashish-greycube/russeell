@@ -77,7 +77,7 @@
    "depends_on": "eval:doc.no_of_credit_note>0",
    "fieldname": "no_of_actual_credit_note",
    "fieldtype": "Int",
-   "label": "No of Actual Credit Note",
+   "label": "Actual: No of Credit Note",
    "mandatory_depends_on": "eval:doc.no_of_credit_note"
   },
   {
@@ -91,7 +91,7 @@
    "depends_on": "eval:doc.no_of_visits_in_si_itemqty > 0",
    "fieldname": "no_of_actual_visits_in_si",
    "fieldtype": "Int",
-   "label": "No of Actual Visits in SI",
+   "label": "Actual: No of  Visits in SI Item(Qty)",
    "mandatory_depends_on": "eval:doc.no_of_visits_in_si_itemqty",
    "non_negative": 1
   },
@@ -129,7 +129,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-07-19 14:59:05.639858",
+ "modified": "2024-07-22 15:59:39.716720",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Termination Request CD",
