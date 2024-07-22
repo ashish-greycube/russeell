@@ -207,6 +207,6 @@ def make_credit_note(termination_req, sales_order, slot_date, si_item_qty):
 	print(si.name, '---si.name')
 	frappe.db.set_value('Sales Order', doc.name, 'status', 'Closed')
 	frappe.db.set_value('Termination Request CD', termination.name, 'termination_sales_invoice', si.name)
-	termination.update({'termination_sales_invoice': si.name})
+	# termination.update({'termination_sales_invoice': si.name})
 	frappe.msgprint(_("Sales Invoice {0} Created").format(si.name), alert=True)
 	return si.name
