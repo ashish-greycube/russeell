@@ -11,10 +11,12 @@
   "assign_to",
   "employee_name",
   "visit_status",
+  "attach_work_proof",
   "column_break_hecv",
   "visit_plan_reference",
   "sales_order",
   "sales_invoice_reference",
+  "stock_entry_reference",
   "customer_name",
   "contact_person",
   "customer_address",
@@ -128,11 +130,23 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Planned Visit Date"
+  },
+  {
+   "fieldname": "attach_work_proof",
+   "fieldtype": "Attach",
+   "label": "Attach Work Proof",
+   "mandatory_depends_on": "eval:doc.visit_status=='Completed'"
+  },
+  {
+   "fieldname": "stock_entry_reference",
+   "fieldtype": "Data",
+   "label": "Material Issue",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-19 13:09:43.205001",
+ "modified": "2024-07-22 11:12:26.326841",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",
