@@ -306,6 +306,12 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
         row.qty = no_of_visits
         row.sales_order = sales_order
         row.so_detail=item.name
+
+        row.custom_business_unit = doc.custom_business_unit
+        row.cost_center = doc.cost_center
+        row.custom_city = doc.custom_city
+        row.territory = doc.territory
+        row.project = doc.project        
         # row.uom=uom
    
     si.run_method("set_missing_values")
