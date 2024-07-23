@@ -135,7 +135,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Transaction",
-   "link_count": 3,
+   "link_count": 4,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -169,9 +169,19 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock Entry",
+   "link_count": 0,
+   "link_to": "Stock Entry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2024-07-22 16:14:23.565264",
+ "modified": "2024-07-23 07:21:26.041026",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Russeell",

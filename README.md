@@ -16,6 +16,12 @@ mit
 
 <hr>
 
+#### Workflow
+
+<img src="assets/20240723_093654_russeell_workflow.png" height='800'>
+
+<hr>
+
 #### Contact Us
 
 <a href="https://greycube.in"><img src="https://greycube.in/files/greycube_logo09eade.jpg" width="250" height="auto"></a> <br>
