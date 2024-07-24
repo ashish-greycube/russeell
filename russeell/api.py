@@ -342,13 +342,13 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
         for visit in visit_list:
             frappe.db.set_value('Visit CD', visit.name, 'sales_invoice_reference', si.name)
 
-def create_si_for_advance_billing_type():
+def create_si_for_advance_billing_type(calender_date=None):
    
     print('-------------------create_si_for_advance_billing_type----------------------')
-    
-    now = getdate(nowdate())
+    if calender_date==None:
+        calender_date = getdate(nowdate())
     billing_period_slots_list = frappe.db.get_all('Billing Period Slots CT', parent_doctype='Sales Order',
-                                                  filters={'slot_start_date': ['=',now],
+                                                  filters={'slot_start_date': ['=',calender_date],
                                                            'sales_invoice_ref': ['=','']}, 
                                                         fields=['parent', 'slot_start_date', 'slot_end_date', 'no_of_visits'])
     print(billing_period_slots_list, '---billing_period_slots_list')
@@ -383,12 +383,13 @@ def create_si_for_advance_billing_type():
                     make_sales_invoice(so.name, billing_slot.slot_start_date, billing_slot.slot_end_date, billing_slot.no_of_visits)  
 
 
-def create_si_for_rear_billing_type():
+def create_si_for_rear_billing_type(calender_date=None):
     print('-------------------create_si_for_rear_billing_type----------------------')
-    now = getdate(nowdate())
+    if calender_date==None:
+        calender_date = getdate(nowdate())    
 
     billing_period_slots_list = frappe.db.get_all('Billing Period Slots CT', parent_doctype='Sales Order',
-                                                  filters={'slot_end_date': ['=',now],
+                                                  filters={'slot_end_date': ['=',calender_date],
                                                            'sales_invoice_ref': ['=','']}, 
                                                         fields=['parent', 'slot_start_date', 'slot_end_date', 'no_of_visits'])
 
