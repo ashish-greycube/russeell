@@ -52,6 +52,7 @@ class VisitCD(Document):
 
 
 	def make_material_issue_stock_entry(self):
+		so_doc = frappe.get_doc('Sales Order', self.sales_order)
 		if self.visit_status == 'Completed' and len(self.consumption) > 0 and self.stock_entry_reference == None:
 			stock_entry = frappe.new_doc("Stock Entry")
 			stock_entry.purpose = 'Material Issue'
@@ -67,6 +68,11 @@ class VisitCD(Document):
 					row.s_warehouse = cm_item_data.warehouse
 					row.stock_uom = details.stock_uom
 					row.conversion_factor = get_conversion_factor(cm_item_data.get("item_code"), details.stock_uom).get("conversion_factor") or 1.0
+					row.custom_business_unit = so_doc.custom_business_unit
+					row.territory = so_doc.territory
+					row.cost_center = so_doc.cost_center
+					row.custom_city = so_doc.custom_city
+					row.project = so_doc.project
 				
 			stock_entry.set_missing_values()
 			stock_entry.flags.ignore_permissions = True
