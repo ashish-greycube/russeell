@@ -341,6 +341,8 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
         
         for visit in visit_list:
             frappe.db.set_value('Visit CD', visit.name, 'sales_invoice_reference', si.name)
+    doc.add_comment("Comment", "Sales Invoice {0} Created".format(si.name))
+    return si.name
 
 def create_si_for_advance_billing_type(calender_date=None):
    

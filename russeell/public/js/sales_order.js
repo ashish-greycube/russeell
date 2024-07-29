@@ -38,7 +38,95 @@ frappe.ui.form.on("Sales Order", {
                         }
                     })
                 }).css({'background-color':'#52c4e6','color':'white'});
+
             }
+    }
+})
+
+frappe.ui.form.on("Billing Period Slots CT", {
+    no_of_visits: function(frm, cdt, cdn) {
+        console.log("change no of visit")
+        let row = locals[cdt][cdn]
+
+        if (frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold" 
+            && frm.doc.custom_billing_period_slot.length > 0
+            && row.no_of_visits > 0 
+            && !row.sales_invoice_ref
+            && frm.doc.custom_billing_type){
+            if(frm.doc.custom_billing_type!= "Rear-Monthly"
+                && frm.doc.custom_billing_type != "Rear-Quaterly"
+                && frm.doc.custom_billing_type != "Rear-HalfYearly"){
+                    console.log(row.slot_start_date, 'slot_start_date', frappe.datetime.get_today(), 'frappe.get_today')
+                    if(row.slot_start_date < frappe.datetime.get_today()){
+                        // frm.set_df_property("custom_billing_period_slot", "hidden", 0, row.name, "create_si");
+                        frm.set_df_property('custom_billing_period_slot', 'hidden', 0, frm.docname, 'create_si', row.name)
+                        console.log('visible button')
+                        // row.add_custom_button(__("Create SI", () => {
+                        //     console.log('inside button')
+                        //     frappe.call({
+                        //         method: "russeell.api.make_sales_invoice",
+                        //         args: {
+                        //             sales_order: frm.doc.name,
+                        //             slot_start_date: row.slot_start_date,
+                        //             slot_end_date: row.slot_end_date,
+                        //             no_of_visits: row.no_of_visits
+                        //         },
+                        //         callback: function (r) {
+                        //             console.log(r.message)
+                        //         }
+                        //     })
+                        // }))
+                    }
+            }
+            else{
+                if(row.slot_end_date  < frappe.datetime.get_today()){
+                    row.add_custom_button(__("Create SI", () => {
+                        frappe.call({
+                            method: "russeell.api.make_sales_invoice",
+                            args: {
+                                sales_order: frm.doc.name,
+                                slot_start_date: row.slot_start_date,
+                                slot_end_date: row.slot_end_date,
+                                no_of_visits: row.no_of_visits
+                            },
+                            callback: function (r) {
+                                console.log(r.message)
+                            }
+                        })
+                    }))
+                }
+            }
+        }
+    },
+
+    create_si: function(frm,cdt, cdn){
+        let row = locals[cdt][cdn]
+        if (frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold" 
+            && frm.doc.custom_billing_period_slot.length > 0
+            && row.no_of_visits > 0 
+            && !row.sales_invoice_ref
+            && frm.doc.custom_billing_type){
+                if(frm.doc.custom_billing_type!= "Rear-Monthly"
+                    && frm.doc.custom_billing_type != "Rear-Quaterly"
+                    && frm.doc.custom_billing_type != "Rear-HalfYearly"){
+                        // console.log(row.slot_start_date, 'slot_start_date', frappe.datetime.get_today(), 'frappe.get_today')
+                        if(row.slot_start_date < frappe.datetime.get_today()){
+                            // console.log("Create SI", frm.name, cdt, cdn)
+                            make_si_for_pervious_slots(frm, cdn, cdt)
+                        }
+                        else{frappe.msgprint(__('You Cann`t Create Past SI as criteria is not matched. <br> ex. existing si is present OR zero no. of visit OR no past slot dates'))}
+                    }
+                else{
+                    if(row.slot_end_date  < frappe.datetime.get_today()){
+                        // console.log("Create SI", frm.name, cdt, cdn)
+                        make_si_for_pervious_slots(frm, cdn, cdt)
+                    }
+                    else{frappe.msgprint(__('You Cann`t Create Past SI as criteria is not matched. <br> ex. existing si is present OR zero no. of visit OR no past slot dates'))}
+                }
+            }
+        else{
+            frappe.msgprint(__('You Cann`t Create Past SI as criteria is not matched. <br> ex. existing si is present OR zero no. of visit OR no past slot dates'))
+        }
     }
 })
 
@@ -74,4 +162,20 @@ function make_sales_invoice(frm) {
             console.log(r.message)
         }
     })
+}
+
+function make_si_for_pervious_slots(frm, cdn, cdt){
+    let row = locals[cdt][cdn]
+    frappe.call({
+        method: "russeell.api.make_sales_invoice",
+        args: {
+            sales_order: frm.doc.name,
+            slot_start_date: row.slot_start_date,
+            slot_end_date: row.slot_end_date,
+            no_of_visits: row.no_of_visits
+        },
+        callback: function (r) {
+            console.log(r.message)
+        }
+        })
 }
