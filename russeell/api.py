@@ -242,7 +242,7 @@ def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
     visit_plan.date = frappe.utils.nowdate(),
     visit_plan.sales_order =  sale_order,
     visit_plan.customer = customer
-
+    visit_plan.cost_center = frappe.db.get_value('Sales Order', sale_order, 'cost_center') or ''
     if contact_person == '':
         visit_plan.contact_person = ''
     else:
