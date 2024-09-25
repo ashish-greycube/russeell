@@ -10,6 +10,7 @@
   "customer",
   "sales_order",
   "contract",
+  "cost_center",
   "column_break_rfdb",
   "contract_status",
   "contact_person",
@@ -86,6 +87,12 @@
    "label": "Customer",
    "options": "Customer",
    "read_only": 1
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -95,7 +102,7 @@
    "link_fieldname": "visit_plan_reference"
   }
  ],
- "modified": "2024-07-17 09:59:25.834948",
+ "modified": "2024-09-24 16:21:51.753198",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit Plan CD",
