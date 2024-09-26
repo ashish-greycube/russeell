@@ -70,7 +70,7 @@ class VisitCD(Document):
 					row.conversion_factor = get_conversion_factor(cm_item_data.get("item_code"), details.stock_uom).get("conversion_factor") or 1.0
 					row.custom_business_unit = so_doc.custom_business_unit
 					row.territory = so_doc.territory
-					row.cost_center = so_doc.cost_center
+					row.cost_center = self.cost_center
 					row.custom_city = so_doc.custom_city
 					row.project = so_doc.project
 				

@@ -130,9 +130,10 @@ doc_events = {
                     "russeell.api.validate_item_rate"]
     },
     "Sales Order":{
-        "validate": "russeell.api.check_contact_end_date",
+        "validate": ["russeell.api.check_contact_end_date",
+                     "russeell.api.validate_cost_center_table"],
         "before_submit": "russeell.api.set_so_billing_period_slots"
-    }
+    },
 }
 # doc_events = {
 # 	"*": {

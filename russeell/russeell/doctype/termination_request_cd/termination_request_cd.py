@@ -133,7 +133,7 @@ class TerminationRequestCD(Document):
 		print('set_status_of_visit_and_visit_plan_for_rear')
 
 @frappe.whitelist()
-def make_sales_invoice(sales_order, slot_date, si_item_qty, termination_req):
+def make_sales_invoice(sales_order, slot_date, si_item_qty, termination_req, cost_center):
 	termination = frappe.get_doc('Termination Request CD', termination_req)
 	# print(sales_order, slot_date, si_item_qty)
 	doc = frappe.get_doc('Sales Order', sales_order)
@@ -141,14 +141,14 @@ def make_sales_invoice(sales_order, slot_date, si_item_qty, termination_req):
 	si.customer = doc.customer
 	si.due_date = nowdate()
 	si.custom_business_unit = doc.custom_business_unit
-	si.cost_center = doc.cost_center
+	si.cost_center = cost_center
 	si.custom_city = doc.custom_city
 	si.territory = doc.territory
 	si.project = doc.project
 
 	# si.custom_slot_start_date = getdate(slot_start_date)
 	# si.custom_slot_end_date = getdate(slot_end_date)
-
+	cost_center_doc = frappe.get_doc("Cost Center", cost_center)
 	for item in doc.items:
 		row = si.append('items', {})
 		row.item_code = item.item_code
@@ -158,6 +158,10 @@ def make_sales_invoice(sales_order, slot_date, si_item_qty, termination_req):
 		print(row.qty, row.rate)
 		row.sales_order = sales_order
 		row.so_detail=item.name
+		row.cost_center=cost_center
+		row.custom_business_unit=cost_center_doc.custom_business_unit or ''
+		row.territory=cost_center_doc.custom_territory
+		row.custom_city=cost_center_doc.custom_city
 
 	si.run_method("set_missing_values")
 	si.run_method("calculate_taxes_and_totals")
@@ -176,14 +180,14 @@ def make_sales_invoice(sales_order, slot_date, si_item_qty, termination_req):
 	return si.name
 
 @frappe.whitelist()
-def make_credit_note(termination_req, sales_order, slot_date, si_item_qty):
+def make_credit_note(termination_req, sales_order, slot_date, si_item_qty, cost_center):
 	doc = frappe.get_doc('Sales Order', sales_order)
 	termination = frappe.get_doc('Termination Request CD', termination_req)
 	si = frappe.new_doc("Sales Invoice")
 	si.customer = doc.customer
 	si.due_date = nowdate()
 	si.custom_business_unit = doc.custom_business_unit
-	si.cost_center = doc.cost_center
+	si.cost_center = cost_center
 	si.custom_city = doc.custom_city
 	si.territory = doc.territory
 	si.project = doc.project
@@ -194,15 +198,19 @@ def make_credit_note(termination_req, sales_order, slot_date, si_item_qty):
 			si_ref = billing_slot.sales_invoice_ref
 
 	si.return_against=si_ref,
-
+	cost_center_doc = frappe.get_doc("Cost Center", cost_center)
 	for item in doc.items:
 		row = si.append('items', {})
 		row.item_code = item.item_code
 		row.rate = item.rate
 		row.qty = -int(si_item_qty)
-		print(-int(si_item_qty) , '----int(si_item_qty)')
+		# print(-int(si_item_qty) , '----int(si_item_qty)')
 		row.sales_order = sales_order
 		row.so_detail=item.name
+		row.cost_center=cost_center
+		row.custom_business_unit=cost_center_doc.custom_business_unit or ''
+		row.territory=cost_center_doc.custom_territory
+		row.custom_city=cost_center_doc.custom_city
 	# print(sales_order, slot_date, si_item_qty)
 
 	si.submit()

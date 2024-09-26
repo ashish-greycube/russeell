@@ -16,6 +16,7 @@
   "visit_plan_reference",
   "sales_order",
   "sales_invoice_reference",
+  "cost_center",
   "stock_entry_reference",
   "customer_name",
   "contact_person",
@@ -142,11 +143,18 @@
    "fieldtype": "Data",
    "label": "Material Issue",
    "read_only": 1
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-22 11:12:26.326841",
+ "modified": "2024-09-25 15:03:18.323947",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",

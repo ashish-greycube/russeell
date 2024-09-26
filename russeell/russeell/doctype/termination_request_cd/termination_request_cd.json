@@ -20,6 +20,7 @@
   "no_of_pending_visit",
   "no_of_actual_credit_note",
   "no_of_actual_visits_in_si",
+  "cost_center",
   "termination_sales_invoice"
  ],
  "fields": [
@@ -124,12 +125,19 @@
    "fieldtype": "Data",
    "label": "Credit Note/ Sales Invoice",
    "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-07-22 15:59:39.716720",
+ "modified": "2024-09-26 13:42:29.173996",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Termination Request CD",

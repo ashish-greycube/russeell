@@ -161,6 +161,16 @@ def check_contact_end_date(self, method):
             last_slot_end_date = add_to_date(slot_start_date, days=-1)
             if last_slot_end_date != self.custom_contract_end_date:
                 frappe.throw(_("Slot end date is invalid it should be {0}".format(last_slot_end_date)))
+
+def validate_cost_center_table(self, method):
+    if len(self.custom_cost_center_details) > 0 and self.custom_total_no_of_visits > 0:
+        total_visit = 0
+        for row in self.custom_cost_center_details:
+            total_visit = total_visit + row.qty
+        
+        if total_visit != self.custom_total_no_of_visits:
+            frappe.throw(_("Total of cost center qty must be equal to total no of visit"))
+        
     
 def set_so_billing_period_slots(self, method):
 
@@ -242,7 +252,7 @@ def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
     visit_plan.date = frappe.utils.nowdate(),
     visit_plan.sales_order =  sale_order,
     visit_plan.customer = customer
-    visit_plan.cost_center = frappe.db.get_value('Sales Order', sale_order, 'cost_center') or ''
+
     if contact_person == '':
         visit_plan.contact_person = ''
     else:
@@ -259,18 +269,22 @@ def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
 
     so_items = frappe.db.get_list("Sales Order Item", parent_doctype="Sales Order", filters={'parent': sale_order},fields=['item_code', 'item_name'],)
 
-    for visit in range(int(no_of_visit)):
-        visit = frappe.new_doc("Visit CD")
-        visit.visit_plan_reference = visit_plan.name
-        visit.customer_name = customer
-        visit.contact_person = visit_plan.contact_person
-        visit.customer_address =  visit_plan.customer_address
-        visit.sales_order = visit_plan.sales_order
+    so = frappe.get_doc("Sales Order", sale_order)
 
-        for item in so_items:
-            visit.append("service_list",{"item_code": item.item_code, "item_name":item.item_name})
-        visit.save(ignore_permissions=True)
-        # frappe.msgprint(_("Visit {0} is created").format(visit.name), alert=True)
+    if len(so.custom_cost_center_details) > 0:
+        for cost_center in so.custom_cost_center_details:
+            for visit in range(int(cost_center.qty)):
+                visit = frappe.new_doc("Visit CD")
+                visit.visit_plan_reference = visit_plan.name
+                visit.customer_name = customer
+                visit.contact_person = visit_plan.contact_person
+                visit.customer_address =  visit_plan.customer_address
+                visit.sales_order = visit_plan.sales_order
+                visit.cost_center = cost_center.cost_center
+
+                for item in so_items:
+                    visit.append("service_list",{"item_code": item.item_code, "item_name":item.item_name})
+                visit.save(ignore_permissions=True)
 
     visit_details = frappe.db.get_list("Visit CD", filters={'visit_plan_reference': visit_plan.name}, fields=['name'], order_by="creation asc")
 
@@ -280,7 +294,6 @@ def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
     frappe.msgprint(_("Visit Plan {0} and {1} visits are created").format(visit_plan.name, no_of_visit), alert=True)
 
     return visit_plan, visit
-    # return visit_plan.name
 
 @frappe.whitelist()
 def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits):
@@ -298,21 +311,43 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
     si.project = doc.project
 
 
-    for item in doc.items:
-        row = si.append('items', {})
-        row.item_code = item.item_code
-        row.rate = item.rate
-        # uom = frappe.db.get_value('Item', item.item_code, 'stock_uom')
-        row.qty = no_of_visits
-        row.sales_order = sales_order
-        row.so_detail=item.name
+    visit_list = frappe.db.get_all('Visit CD', filters={'sales_order': sales_order,
+                                                        'planned_visit_date': ['between', [slot_start_date, slot_end_date]]},
+                                                fields=['name', 'cost_center'])
+    if len(visit_list) > 0:
+        
+        for visit in visit_list:
+            item = doc.items[0]
+            row = si.append('items', {})
+            row.item_code = item.item_code
+            row.rate = item.rate
+            # uom = frappe.db.get_value('Item', item.item_code, 'stock_uom')
+            row.qty = 1
+            row.sales_order = sales_order
+            row.so_detail=item.name
 
-        row.custom_business_unit = doc.custom_business_unit
-        row.cost_center = doc.cost_center
-        row.custom_city = doc.custom_city
-        row.territory = doc.territory
-        row.project = doc.project        
-        # row.uom=uom
+            row.custom_business_unit = doc.custom_business_unit
+            row.cost_center = visit.cost_center
+            row.custom_city = doc.custom_city
+            row.territory = doc.territory
+            row.project = doc.project        
+            # row.uom=uom
+    
+    # else:
+    #     for item in doc.items:
+    #         row = si.append('items', {})
+    #         row.item_code = item.item_code
+    #         row.rate = item.rate
+    #         # uom = frappe.db.get_value('Item', item.item_code, 'stock_uom')
+    #         row.qty = 1
+    #         row.sales_order = sales_order
+    #         row.so_detail=item.name
+
+    #         row.custom_business_unit = doc.custom_business_unit
+    #         row.cost_center = visit.cost_center
+    #         row.custom_city = doc.custom_city
+    #         row.territory = doc.territory
+    #         row.project = doc.project 
    
     si.run_method("set_missing_values")
     si.run_method("calculate_taxes_and_totals")

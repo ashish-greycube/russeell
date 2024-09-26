@@ -17,33 +17,47 @@ frappe.ui.form.on("Termination Request CD", {
 });
 
 function make_credit_note(frm){
-    frappe.call({
-        method: "russeell.russeell.doctype.termination_request_cd.termination_request_cd.make_credit_note",
-        args: {
-            termination_req: frm.doc.name,
-            sales_order: frm.doc.so_reference,
-            slot_date: frm.doc.date,
-            si_item_qty: frm.doc.no_of_actual_credit_note
-        },
-        callback: function (r) {
-            if(r.message){
-                console.log(r.message)
-                // frm.set_value('termination_sales_invoice', r.message)
-                // submit()
-                // frm.save()
+    if(!frm.doc.cost_center){
+        console.log("cost center")
+        frappe.throw(__("Please Select Cost Center First"))
+    }
+    else{
+        console.log("elsee")
+        frappe.call({
+            method: "russeell.russeell.doctype.termination_request_cd.termination_request_cd.make_credit_note",
+            args: {
+                termination_req: frm.doc.name,
+                sales_order: frm.doc.so_reference,
+                slot_date: frm.doc.date,
+                si_item_qty: frm.doc.no_of_actual_credit_note,
+                cost_center: frm.doc.cost_center
+            },
+            callback: function (r) {
+                if(r.message){
+                    console.log(r.message)
+                    // frm.set_value('termination_sales_invoice', r.message)
+                    // submit()
+                    // frm.save()
+                }
             }
-        }
-    })
+        })
+    }
 }
 
 function make_sales_invoice(frm) {
+    if(!frm.doc.cost_center){
+        console.log("cost center")
+        frappe.throw(__("Please Select Cost Center First"))
+    }
+    else{
     frappe.call({
         method: "russeell.russeell.doctype.termination_request_cd.termination_request_cd.make_sales_invoice",
         args: {
             termination_req: frm.doc.name,
             sales_order: frm.doc.so_reference,
             slot_date: frm.doc.date,
-            si_item_qty: frm.doc.no_of_actual_visits_in_si
+            si_item_qty: frm.doc.no_of_actual_visits_in_si,
+            cost_center: frm.doc.cost_center
         },
         callback: function (r) {
             if(r.message){
@@ -51,4 +65,5 @@ function make_sales_invoice(frm) {
             }
         }
     })
+    }
 }
