@@ -239,6 +239,22 @@ def set_count_of_visits_in_a_slot(so, planned_visit_date):
             # print(slot.no_of_visits, '-------after increaing')
             break
 
+def set_contract_end_date_based_on_contract_type(self, method):
+    if self.custom_contract_period == "One Time":
+        self.custom_contract_end_date = self.custom_contract_start_date
+    elif self.custom_contract_period == "3 Month Contract":
+        self.custom_contract_end_date = add_to_date(self.custom_contract_start_date, months=3, days=-1)
+    elif self.custom_contract_period == "Half Yearly":
+        self.custom_contract_end_date = add_to_date(self.custom_contract_start_date, months=6, days=-1)
+    elif self.custom_contract_period == "Yearly":
+        self.custom_contract_end_date = add_to_date(self.custom_contract_start_date, years=1, days=-1)
+    elif self.custom_contract_period == "2 Year":
+        self.custom_contract_end_date = add_to_date(self.custom_contract_start_date, years=2, days=-1)
+    elif self.custom_contract_period == "4 Year":
+        self.custom_contract_end_date = add_to_date(self.custom_contract_start_date, years=4, days=-1)
+    elif self.custom_contract_period == "5 Year":
+        self.custom_contract_end_date = add_to_date(self.custom_contract_start_date, years=5, days=-1)
+
 @frappe.whitelist()
 def get_default_warehouse_for_consumed_item(item_code,company):
     from erpnext.stock.get_item_details import get_item_warehouse

@@ -127,7 +127,8 @@ doctype_js = {"Quotation" : "public/js/quotation.js",
 doc_events = {
     "Quotation":{
         "validate":["russeell.api.validate_quotation_cost_section",
-                    "russeell.api.validate_item_rate"]
+                    "russeell.api.validate_item_rate",
+                    "russeell.api.set_contract_end_date_based_on_contract_type"]
     },
     "Sales Order":{
         "validate": ["russeell.api.check_contact_end_date",

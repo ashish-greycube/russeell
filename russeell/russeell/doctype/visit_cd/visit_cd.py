@@ -5,7 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.contacts.doctype.address.address import get_address_display
 from frappe import _
-from frappe.utils import getdate
+from frappe.utils import getdate, nowdate
 from russeell.api import set_count_of_visits_in_a_slot
 from erpnext.stock.get_item_details import get_conversion_factor
 
@@ -21,6 +21,7 @@ class VisitCD(Document):
 		self.validate_planned_visit_date()
 		self.validate_visit_status_with_si_status()
 		self.make_material_issue_stock_entry()
+		self.set_actual_date_on_visit_completed()
 
 	def validate_planned_visit_date(self):
 		if self.planned_visit_date:
@@ -43,7 +44,7 @@ class VisitCD(Document):
 				pass
 
 	def validate_visit_status_with_si_status(self):
-		if self.visit_status == "Completed" or self.visit_status == "Customer Cancelled":
+		if (self.visit_status == "Completed" or self.visit_status == "Customer Cancelled") and self.sales_order:
 			so_doc = frappe.get_doc('Sales Order', self.sales_order)
 			if so_doc.custom_billing_type != None and so_doc.custom_billing_type != "Rear-Monthly" and so_doc.custom_billing_type != "Rear-Quaterly" and so_doc.custom_billing_type != "Rear-HalfYearly":
 				si = frappe.get_doc('Sales Invoice', self.sales_invoice_reference)
@@ -52,8 +53,8 @@ class VisitCD(Document):
 
 
 	def make_material_issue_stock_entry(self):
-		so_doc = frappe.get_doc('Sales Order', self.sales_order)
-		if self.visit_status == 'Completed' and len(self.consumption) > 0 and self.stock_entry_reference == None:
+		if self.visit_status == 'Completed' and len(self.consumption) > 0 and self.stock_entry_reference == None and self.sales_order:
+			so_doc = frappe.get_doc('Sales Order', self.sales_order)
 			stock_entry = frappe.new_doc("Stock Entry")
 			stock_entry.purpose = 'Material Issue'
 			stock_entry.stock_entry_type='Material Issue'
@@ -82,3 +83,7 @@ class VisitCD(Document):
 			self.stock_entry_reference = stock_entry.name
 			# frappe.db.set_value('Visit CD', self.name, 'stock_entry_reference', stock_entry.name)
 			return stock_entry.name
+		
+	def set_actual_date_on_visit_completed(self):
+		if not self.actual_visit_date and self.visit_status == "Completed":
+			self.actual_visit_date =  getdate(nowdate())
