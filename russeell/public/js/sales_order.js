@@ -40,7 +40,52 @@ frappe.ui.form.on("Sales Order", {
                 }).css({'background-color':'#52c4e6','color':'white'});
 
             }
+
+        if (frm.doc.docstatus == 1 && frm.doc.custom_visit_plan){
+            frm.add_custom_button(__("Renew Contract"),() => {
+					frm.trigger('create_renew_contract')
+            });
+        }
+    },
+
+    create_renew_contract: function(frm){
+        console.log("Helloo")
+        dialog = new frappe.ui.Dialog({
+            title: __("Renew Contract"),
+            fields: [
+                {
+                    fieldtype:'Date',
+                    fieldname:'contract_start_date',
+                    label: __('Contract Start Date'),
+                    reqd: 1
+                },
+                {
+                    fieldtype:'Select',
+                    fieldname:'contract_period',
+                    label: __('Contract Period'),
+                    options:["",
+                        "One Time", "3 Month Contract","Half Yearly","Yearly",
+                        "2 Year", "3 Year", "4 Year", "5 Year"],
+                    reqd: 1
+                },
+            ],
+            primary_action_label: 'Renew',
+            primary_action: function (values) {
+                console.log(values)
+                frappe.call({
+                    method:"russeell.api.create_so_contract_renew",
+                    args: {
+                        so_name:frm.doc.name,
+                        contract_start_date: values.contract_start_date,
+                        contract_period: values.contract_period
+                    }
+                })
+                dialog.hide();
+            }
+        })
+        dialog.show();
     }
+
 })
 
 frappe.ui.form.on("Billing Period Slots CT", {

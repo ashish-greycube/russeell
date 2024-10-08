@@ -13,22 +13,20 @@
   "employee_name",
   "visit_status",
   "attach_work_proof",
-  "column_break_hecv",
-  "visit_plan_reference",
-  "sales_order",
   "sales_invoice_reference",
+  "sales_order",
+  "visit_plan_reference",
+  "column_break_hecv",
   "cost_center",
-  "stock_entry_reference",
-  "customer_name",
-  "contact_person",
-  "customer_address",
-  "address_display",
-  "section_break_ektt",
   "custom_business_unit",
   "custom_city",
-  "column_break_ltoq",
   "territory",
-  "location",
+  "geo_location",
+  "stock_entry_reference",
+  "contact_person",
+  "customer_name",
+  "customer_address",
+  "address_display",
   "service_list_section",
   "service_list",
   "consumption_list_section",
@@ -169,17 +167,12 @@
   {
    "fieldname": "section_break_qxjc",
    "fieldtype": "Section Break",
-   "label": "Activities"
+   "label": "Daily Activities"
   },
   {
    "fieldname": "daily_activities",
    "fieldtype": "Table",
-   "label": "Daily Activities",
    "options": "Daily Activities CT"
-  },
-  {
-   "fieldname": "section_break_ektt",
-   "fieldtype": "Section Break"
   },
   {
    "fetch_from": "cost_center.custom_custom_business_unit",
@@ -196,23 +189,11 @@
    "options": "City CD"
   },
   {
-   "fieldname": "column_break_ltoq",
-   "fieldtype": "Column Break"
-  },
-  {
    "fetch_from": "cost_center.custom_territory",
    "fieldname": "territory",
    "fieldtype": "Link",
    "label": "Territory",
    "options": "Territory"
-  },
-  {
-   "fetch_from": "cost_center.custom_location",
-   "fieldname": "location",
-   "fieldtype": "Data",
-   "label": "Location",
-   "options": "URL",
-   "read_only": 1
   },
   {
    "fieldname": "visit_start",
@@ -222,39 +203,44 @@
   {
    "fieldname": "section_break_vxrc",
    "fieldtype": "Section Break",
-   "label": "Infestation"
+   "label": "Infestation Details"
   },
   {
    "fieldname": "infestation_details",
    "fieldtype": "Table",
-   "label": "Infestation Details",
    "options": "Infestation Details CT"
   },
   {
    "fieldname": "section_break_twbt",
    "fieldtype": "Section Break",
-   "label": "Traps Layout"
+   "label": "Traps Layout Details"
   },
   {
    "fieldname": "traps_layout_details",
    "fieldtype": "Table",
-   "label": "Traps Layout Details",
    "options": "Traps Layout Details CT"
   },
   {
    "fieldname": "section_break_yomp",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Infestation Details for Rodent and Cats"
   },
   {
    "fieldname": "infestation_details_for_rodent_and_cats",
    "fieldtype": "Table",
-   "label": "Infestation Details for Rodent and Cats",
    "options": "Infestation Details for Rodent and Cats CT"
+  },
+  {
+   "fetch_from": "cost_center.custom_location",
+   "fieldname": "geo_location",
+   "fieldtype": "Data",
+   "label": "Geo Location",
+   "options": "URL"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-04 12:12:22.285904",
+ "modified": "2024-10-07 10:41:36.096911",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",

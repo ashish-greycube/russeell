@@ -131,6 +131,7 @@ doc_events = {
                     "russeell.api.set_contract_end_date_based_on_contract_type"]
     },
     "Sales Order":{
+        # "before_naming":"russeell.api.create_so_contract_renew",
         "validate": ["russeell.api.check_contact_end_date",
                      "russeell.api.validate_cost_center_table"],
         "before_submit": "russeell.api.set_so_billing_period_slots"

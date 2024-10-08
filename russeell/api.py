@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe import msgprint, _
-from frappe.utils import flt, getdate, nowdate, add_to_date
+from frappe.utils import flt, getdate, nowdate, add_to_date, get_link_to_form
 from datetime import datetime
 
 def validate_quotation_cost_section(self, method):
@@ -460,3 +460,39 @@ def create_si_for_rear_billing_type(calender_date=None):
                     
                     from russeell.api import make_sales_invoice
                     make_sales_invoice(so.name, billing_slot.slot_start_date, billing_slot.slot_end_date, billing_slot.no_of_visits)
+
+@frappe.whitelist()
+def create_so_contract_renew(so_name, contract_start_date, contract_period):
+    so = frappe.get_doc("Sales Order",so_name)
+    doc = frappe.copy_doc(so)
+
+    if not doc.custom_original_contract:
+        doc.custom_original_contract=so.name
+        doc.naming_series=f"{so.name}.-.#"
+    else:
+        doc.naming_series=f"{so.custom_original_contract}.-.#"
+
+    doc.custom_contract_start_date=contract_start_date
+
+    if contract_period  == "One Time":
+        doc.custom_contract_end_date = contract_start_date
+    elif contract_period == "3 Month Contract":
+        doc.custom_contract_end_date = add_to_date(contract_start_date, months=3, days=-1)
+    elif contract_period == "Half Yearly":
+        doc.custom_contract_end_date = add_to_date(contract_start_date, months=6, days=-1)
+    elif contract_period == "Yearly":
+        doc.custom_contract_end_date = add_to_date(contract_start_date, years=1, days=-1)
+    elif contract_period == "2 Year":
+        doc.custom_contract_end_date = add_to_date(contract_start_date, years=2, days=-1)
+    elif contract_period == "4 Year":
+        doc.custom_contract_end_date = add_to_date(contract_start_date, years=4, days=-1)
+    elif contract_period == "5 Year":
+        doc.custom_contract_end_date = add_to_date(contract_start_date, years=5, days=-1)
+
+
+    doc.custom_visit_plan = None
+    doc.custom_billing_period_slot = [] 
+    doc.save(ignore_permissions=True)
+    frappe.msgprint(_("Contract Renew {0} is created".format(get_link_to_form('Sales Order', doc.name))))
+
+    return doc.name
