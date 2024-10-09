@@ -18,6 +18,7 @@
   "visit_plan_reference",
   "column_break_hecv",
   "cost_center",
+  "cost_center_name_in_arabic",
   "custom_business_unit",
   "custom_city",
   "territory",
@@ -25,6 +26,7 @@
   "stock_entry_reference",
   "contact_person",
   "customer_name",
+  "customer_name_in_english",
   "customer_address",
   "address_display",
   "service_list_section",
@@ -175,14 +177,14 @@
    "options": "Daily Activities CT"
   },
   {
-   "fetch_from": "cost_center.custom_custom_business_unit",
+   "fetch_from": "cost_center.custom_business_unit",
    "fieldname": "custom_business_unit",
    "fieldtype": "Link",
    "label": "Custom Business Unit",
    "options": "Business Unit CD"
   },
   {
-   "fetch_from": "cost_center.custom_custom_city",
+   "fetch_from": "cost_center.custom_city",
    "fieldname": "custom_city",
    "fieldtype": "Link",
    "label": "Custom City",
@@ -236,11 +238,25 @@
    "fieldtype": "Data",
    "label": "Geo Location",
    "options": "URL"
+  },
+  {
+   "fetch_from": "cost_center.custom_cost_center_name_in_arabic",
+   "fieldname": "cost_center_name_in_arabic",
+   "fieldtype": "Data",
+   "label": "Cost Center Name in Arabic",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer_name.customer_name_in_arabic",
+   "fieldname": "customer_name_in_english",
+   "fieldtype": "Data",
+   "label": "Customer Name In English",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-07 10:41:36.096911",
+ "modified": "2024-10-09 15:04:57.035867",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",
