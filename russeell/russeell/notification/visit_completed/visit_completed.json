@@ -13,7 +13,7 @@
  "is_standard": 1,
  "message": "<p>Dear {{doc.customer_name}},</p>\n\n<pre><code>Your visit {{doc.name}} is {{doc.visit_status}} on date: {{doc.actual_visit_date}}\n</code></pre>\n\n<p>Thanks,\nTeam Russeell</p>\n",
  "message_type": "Markdown",
- "modified": "2024-10-18 10:34:44.260678",
+ "modified": "2024-10-18 10:38:38.067325",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit Completed",
@@ -26,7 +26,7 @@
  ],
  "send_system_notification": 0,
  "send_to_all_assignees": 0,
- "sender": "Stats",
- "sender_email": "stats@test.in",
+ "sender": "Russeell",
+ "sender_email": "russeell@test.in",
  "subject": "visit {{doc.name}}  is {{doc.visit_status}}"
 }
