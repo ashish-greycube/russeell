@@ -1,0 +1,32 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "condition": "doc.visit_status==\"Completed\" and doc.customer_email!=None",
+ "creation": "2024-10-18 09:53:52.332747",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Visit CD",
+ "enabled": 1,
+ "event": "Save",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<p>Dear {{doc.customer_name}},</p>\n\n<pre><code>Your visit {{doc.name}} is {{doc.visit_status}} on date: {{doc.actual_visit_date}}\n</code></pre>\n\n<p>Thanks,\nTeam Russeell</p>\n",
+ "message_type": "Markdown",
+ "modified": "2024-10-18 10:34:44.260678",
+ "modified_by": "Administrator",
+ "module": "Russeell",
+ "name": "Visit Completed",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "cc": "",
+   "receiver_by_document_field": "customer_email"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender": "Stats",
+ "sender_email": "stats@test.in",
+ "subject": "visit {{doc.name}}  is {{doc.visit_status}}"
+}

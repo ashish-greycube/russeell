@@ -87,3 +87,5 @@ class VisitCD(Document):
 	def set_actual_date_on_visit_completed(self):
 		if not self.actual_visit_date and self.visit_status == "Completed":
 			self.actual_visit_date =  getdate(nowdate())
+		elif not self.actual_visit_date:
+			self.actual_visit_date = self.planned_visit_date

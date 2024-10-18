@@ -1,6 +1,15 @@
 // Copyright (c) 2024, GreyCube Technologies and contributors
 // For license information, please see license.txt
 
+frappe.ui.form.on("Visit CD", {
+    planned_visit_date: function(frm){
+        if(!frm.doc.actual_visit_date){
+            frm.set_value("actual_visit_date", frm.doc.planned_visit_date)
+        }
+    }
+})
+
+
 frappe.ui.form.on("Visit Consumption Item Table CT", {
 	item_code: function(frm, cdt, cdn) {
         set_default_warehouse(frm, cdt, cdn)

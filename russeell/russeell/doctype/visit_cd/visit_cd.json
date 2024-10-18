@@ -26,6 +26,7 @@
   "stock_entry_reference",
   "contact_person",
   "customer_name",
+  "customer_email",
   "customer_name_in_english",
   "customer_address",
   "address_display",
@@ -252,11 +253,19 @@
    "fieldtype": "Data",
    "label": "Customer Name In English",
    "read_only": 1
+  },
+  {
+   "fetch_from": "customer_name.email_id",
+   "fieldname": "customer_email",
+   "fieldtype": "Data",
+   "label": "Customer Email",
+   "options": "Email",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-09 15:04:57.035867",
+ "modified": "2024-10-18 10:29:10.776205",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",
@@ -278,5 +287,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }
