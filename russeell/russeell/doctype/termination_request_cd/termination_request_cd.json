@@ -21,7 +21,9 @@
   "no_of_actual_credit_note",
   "no_of_actual_visits_in_si",
   "cost_center",
-  "termination_sales_invoice"
+  "termination_sales_invoice",
+  "section_break_rhkl",
+  "tr_items"
  ],
  "fields": [
   {
@@ -48,7 +50,6 @@
    "fieldname": "so_reference",
    "fieldtype": "Link",
    "label": "SO Reference",
-   "link_filters": "[[\"Sales Order\",\"status\",\"not in\",[\"Closed\",\"On Hold\",null]]]",
    "options": "Sales Order",
    "unique": 1
   },
@@ -132,12 +133,23 @@
    "fieldtype": "Link",
    "label": "Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "section_break_rhkl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "tr_items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "mandatory_depends_on": "eval:(doc.no_of_credit_note>0)||(doc.no_of_visits_in_si_itemqty>0)",
+   "options": "Termination Request Items CT"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-09-26 13:42:29.173996",
+ "modified": "2024-10-29 15:46:58.883584",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Termination Request CD",

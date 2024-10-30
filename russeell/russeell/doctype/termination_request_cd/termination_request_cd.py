@@ -37,15 +37,18 @@ class TerminationRequestCD(Document):
 			print("inside if condition")
 		else:
 			# print(so_doc.custom_billing_type, 'so_doc.custom_billing_type')
-			# slot_start_date = ""
-			# slot_end_date = ""
+			slot_start_date = ""
+			slot_end_date = ""
 			print('inside else consition')
 			for billing_slot in so_doc.custom_billing_period_slot:
 				if billing_slot.slot_start_date <= getdate(self.date) and billing_slot.slot_end_date >= getdate(self.date):
 					slot_start_date = billing_slot.slot_start_date
 					slot_end_date = billing_slot.slot_end_date
 					break
-			# print(slot_start_date, '---outside if')
+
+			if slot_start_date == "":
+				frappe.throw(_("There is no contract exists for {0} date").format(self.date))
+			print(slot_start_date, '---outside if')
 			visit_count = frappe.db.count('Visit CD', filters={'sales_order': so_doc.name,
 															'planned_visit_date': ['between', [slot_start_date, slot_end_date]],
 															'visit_status': ['not in', ['Completed', 'Customer Cancelled']]})
@@ -59,6 +62,8 @@ class TerminationRequestCD(Document):
 			print("inside if condition")
 		else:
 			# print(so_doc.custom_billing_type, 'so_doc.custom_billing_type')
+			slot_start_date=""
+			custom_contract_end_date=""
 			for billing_slot in so_doc.custom_billing_period_slot:
 				if billing_slot.slot_start_date <= getdate(self.date) and billing_slot.slot_end_date >= getdate(self.date):
 
@@ -66,6 +71,9 @@ class TerminationRequestCD(Document):
 					slot_start_date = billing_slot.slot_start_date
 					custom_contract_end_date = so_doc.custom_contract_end_date
 					break
+			
+			if slot_start_date == "":
+				frappe.throw(_("There is no contract exists for {0} date").format(self.date))
 
 			visit_list = frappe.db.get_all('Visit CD', filters={'sales_order': so_doc.name,
 															'planned_visit_date': ['between', [slot_start_date, custom_contract_end_date]],
@@ -87,6 +95,8 @@ class TerminationRequestCD(Document):
 
 		if so_doc.custom_billing_type == "Rear-Monthly" or so_doc.custom_billing_type == "Rear-Quaterly" or so_doc.custom_billing_type == "Rear-HalfYearly":
 			# print(so_doc.custom_billing_type, 'so_doc.custom_billing_type')
+			slot_start_date=""
+			slot_end_date=""
 			for billing_slot in so_doc.custom_billing_period_slot:
 				if billing_slot.slot_start_date <= getdate(self.date) and billing_slot.slot_end_date >= getdate(self.date):
 
@@ -95,6 +105,9 @@ class TerminationRequestCD(Document):
 					slot_end_date = billing_slot.slot_end_date
 					print(slot_start_date, slot_end_date, '------dates')
 					break
+
+			if slot_start_date == "":
+				frappe.throw(_("There is no contract exists for {0} date").format(self.date))
 
 			no_of_completed_visit = frappe.db.count('Visit CD', 
 											{'sales_order': so_doc.name, 
@@ -111,6 +124,8 @@ class TerminationRequestCD(Document):
 
 		if so_doc.custom_billing_type == "Rear-Monthly" or so_doc.custom_billing_type == "Rear-Quaterly" or so_doc.custom_billing_type == "Rear-HalfYearly":
 			# print(so_doc.custom_billing_type, 'so_doc.custom_billing_type')
+			slot_start_date=""
+			custom_contract_end_date=""
 			for billing_slot in so_doc.custom_billing_period_slot:
 				if billing_slot.slot_start_date <= getdate(self.date) and billing_slot.slot_end_date >= getdate(self.date):
 
@@ -118,6 +133,9 @@ class TerminationRequestCD(Document):
 					slot_start_date = billing_slot.slot_start_date
 					custom_contract_end_date = so_doc.custom_contract_end_date
 					break
+
+			if slot_start_date == "":
+				frappe.throw(_("There is no contract exists for {0} date").format(self.date))
 
 			visit_list = frappe.db.get_all('Visit CD', filters={'sales_order': so_doc.name,
 															'planned_visit_date': ['between', [slot_start_date, custom_contract_end_date]],
@@ -149,15 +167,15 @@ def make_sales_invoice(sales_order, slot_date, si_item_qty, termination_req, cos
 	# si.custom_slot_start_date = getdate(slot_start_date)
 	# si.custom_slot_end_date = getdate(slot_end_date)
 	cost_center_doc = frappe.get_doc("Cost Center", cost_center)
-	for item in doc.items:
+	for item in termination.tr_items:
 		row = si.append('items', {})
-		row.item_code = item.item_code
+		row.item_code = item.item
 		print(item.amount)
-		row.qty = si_item_qty
-		row.rate = flt((item.rate),2)
-		print(row.qty, row.rate)
+		row.qty = item.qty
+		row.rate = flt((item.item_rate),2)
+		# print(row.qty, row.rate)
 		row.sales_order = sales_order
-		row.so_detail=item.name
+		# row.so_detail=item.name
 		row.cost_center=cost_center
 		row.custom_business_unit=cost_center_doc.custom_business_unit or ''
 		row.territory=cost_center_doc.custom_territory
@@ -199,18 +217,19 @@ def make_credit_note(termination_req, sales_order, slot_date, si_item_qty, cost_
 
 	si.return_against=si_ref,
 	cost_center_doc = frappe.get_doc("Cost Center", cost_center)
-	for item in doc.items:
+	for item in termination.tr_items:
 		row = si.append('items', {})
-		row.item_code = item.item_code
-		row.rate = item.rate
-		row.qty = -int(si_item_qty)
+		row.item_code = item.item
+		row.rate = flt((item.item_rate),2)
+		row.qty = -int(item.qty)
 		# print(-int(si_item_qty) , '----int(si_item_qty)')
 		row.sales_order = sales_order
-		row.so_detail=item.name
+		# row.so_detail=item.name
 		row.cost_center=cost_center
 		row.custom_business_unit=cost_center_doc.custom_business_unit or ''
 		row.territory=cost_center_doc.custom_territory
 		row.custom_city=cost_center_doc.custom_city
+		# row.asset = "ACC-ASS-2024-00001" or ""
 	# print(sales_order, slot_date, si_item_qty)
 
 	si.submit()

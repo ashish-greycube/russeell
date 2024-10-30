@@ -13,8 +13,33 @@ frappe.ui.form.on("Termination Request CD", {
                 make_sales_invoice(frm)
             });
         }
-    }
+    },
+    onload: function(frm){
+        frm.set_query('item', 'tr_items', () => {
+            return {
+                query: "russeell.api.get_service_item",
+                filters: {
+                    parent : frm.doc.so_reference
+                } 
+            };
+        })
+    },
 });
+
+frappe.ui.form.on("Termination Request Items CT", {
+    item: function(frm, cdt, cdn){
+        let row = locals[cdt][cdn]
+        frappe.db.get_doc('Sales Order', frm.doc.so_reference)
+            .then(so => {
+            // console.log(so)
+            so.items.forEach((item) => {
+                if(row.item === item.item_code){
+                    frappe.model.set_value(cdt, cdn, 'item_rate', item.rate)
+                }
+            })
+        })    
+    }
+})
 
 function make_credit_note(frm){
     if(!frm.doc.cost_center){

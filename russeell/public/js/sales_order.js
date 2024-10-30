@@ -48,6 +48,21 @@ frappe.ui.form.on("Sales Order", {
         }
     },
 
+    onload: function(frm){
+        console.log("Helloooo")
+        if(frm.doc.items.length > 0){
+            console.log("Set Query!!!")
+            frm.set_query('item', 'custom_cost_center_details', () => {
+                return {
+                    query: "russeell.api.get_service_item",
+                    filters: {
+                        parent : frm.doc.name
+                    } 
+            };
+            })
+        }
+    },
+
     create_renew_contract: function(frm){
         console.log("Helloo")
         dialog = new frappe.ui.Dialog({
@@ -86,6 +101,17 @@ frappe.ui.form.on("Sales Order", {
         dialog.show();
     }
 
+})
+
+frappe.ui.form.on("Cost Center List CT", {
+    item: function(frm, cdt, cdn){
+        let row = locals[cdt][cdn]
+        frm.doc.items.forEach((item) => {
+            if(row.item === item.item_code){
+                frappe.model.set_value(cdt, cdn, 'item_rate', item.rate)
+            }
+        })
+    }
 })
 
 frappe.ui.form.on("Billing Period Slots CT", {

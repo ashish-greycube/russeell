@@ -86,7 +86,7 @@ frappe.ui.form.on("Quotation", {
         set_suggested_sales_rate_per_visit(frm) 
     },
     custom_suggested_sales_per_visits:function(frm){
-        set_item_rate_in_table(frm)  
+        // set_item_rate_in_table(frm)  
         // set_suggested_sales_rate_per_visit(frm) 
     }
 })
@@ -179,7 +179,7 @@ let set_item_rate_in_table = function(frm){
 
 let calculate_total_visit = function(frm){
     let total_visit = (frm.doc.custom_no_of_visits || 0) * (frm.doc.custom_no_of_locations || 0)
-    frm.set_value('custom_total_no_of_visits', total_visit)
+    frm.set_value('custom_total_locations_visits', total_visit)
 }
 
 let calculate_total_hours = function(frm){

@@ -7,7 +7,9 @@ from datetime import datetime
 def validate_quotation_cost_section(self, method):
   
     # calculate visit hours
-    self.custom_total_no_of_visits =  (self.custom_no_of_visits or 0) * (self.custom_no_of_locations or 0)
+    self.custom_total_locations_visits =  (self.custom_no_of_visits or 0) * (self.custom_no_of_locations or 0)
+    
+    self.custom_total_no_of_visits = self.total_qty
 
     no_of_hours_in_a_month = frappe.db.get_single_value('Russeell Setting', 'no_of_hours_in_a_month')
 
@@ -90,8 +92,8 @@ def validate_quotation_cost_section(self, method):
     # validate item table
 
     if self.custom_quotation_type == 'Visit' or self.custom_quotation_type == 'Station':
-        if len(self.items) > 1:
-            frappe.throw(_('You cann`t add multiple items in Items table.'))
+        # if len(self.items) > 1:
+        #     frappe.throw(_('You cann`t add multiple items in Items table.'))
 
         default_uom = frappe.db.get_value('Item', self.items[0].item_code, 'is_stock_item')
         if default_uom == 1:
@@ -107,11 +109,13 @@ def validate_quotation_cost_section(self, method):
 
 def validate_item_rate(self, method):
     if self.custom_quotation_type == 'Visit' or self.custom_quotation_type == 'Station':
-        for item in self.items:
-            if self.custom_sales_qty:
-                suggested_sales_rate = flt((self.custom_suggested_sales_amount / self.custom_sales_qty),2)
-                if item.rate < suggested_sales_rate:
-                    frappe.throw(_('Item rate cann`t be less than suggested sales rate'))
+        if self.total < self.custom_suggested_sales_amount:
+            frappe.throw(_("Total (SAR) rate cann`t be less than suggested sales rate"))
+        # for item in self.items:
+        #     if self.custom_sales_qty:
+        #         suggested_sales_rate = flt((self.custom_suggested_sales_amount / self.custom_sales_qty),2)
+        #         if item.rate < suggested_sales_rate:
+        #             frappe.throw(_('Item rate cann`t be less than suggested sales rate'))
     
 
 
@@ -163,6 +167,12 @@ def check_contact_end_date(self, method):
                 frappe.throw(_("Slot end date is invalid it should be {0}".format(last_slot_end_date)))
 
 def validate_cost_center_table(self, method):
+    if self.is_new() and len(self.custom_cost_center_details) > 0:
+        self.custom_cost_center_details = []
+
+    if not self.is_new() and self.custom_total_no_of_visits > 0 and len(self.custom_cost_center_details) == 0:
+        frappe.throw(_("Please fill up Cost Center Details Table"))
+
     if len(self.custom_cost_center_details) > 0 and self.custom_total_no_of_visits > 0:
         total_visit = 0
         for row in self.custom_cost_center_details:
@@ -296,10 +306,11 @@ def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
                 visit.contact_person = visit_plan.contact_person
                 visit.customer_address =  visit_plan.customer_address
                 visit.sales_order = visit_plan.sales_order
-                visit.cost_center = cost_center.cost_center
+                visit.cost_center = cost_center.item_cost_center
 
-                for item in so_items:
-                    visit.append("service_list",{"item_code": item.item_code, "item_name":item.item_name})
+                visit.append("service_list",{"item_code": cost_center.item, "item_name":cost_center.item_name, "rate": cost_center.item_rate})
+                # for item in so_items:
+                #     visit.append("service_list",{"item_code": item.item_code, "item_name":item.item_name})
                 visit.save(ignore_permissions=True)
 
     visit_details = frappe.db.get_list("Visit CD", filters={'visit_plan_reference': visit_plan.name}, fields=['name'], order_by="creation asc")
@@ -333,20 +344,22 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
     if len(visit_list) > 0:
         
         for visit in visit_list:
-            item = doc.items[0]
-            row = si.append('items', {})
-            row.item_code = item.item_code
-            row.rate = item.rate
-            # uom = frappe.db.get_value('Item', item.item_code, 'stock_uom')
-            row.qty = 1
-            row.sales_order = sales_order
-            row.so_detail=item.name
+            vi_doc = frappe.get_doc('Visit CD', visit.name)
+            for item in vi_doc.service_list:
+                # item = doc.items[0]
+                row = si.append('items', {})
+                row.item_code = item.item_code
+                row.rate = item.rate
+                # uom = frappe.db.get_value('Item', item.item_code, 'stock_uom')
+                row.qty = 1
+                row.sales_order = sales_order
+                # row.so_detail=item.name
 
-            row.custom_business_unit = doc.custom_business_unit
-            row.cost_center = visit.cost_center
-            row.custom_city = doc.custom_city
-            row.territory = doc.territory
-            row.project = doc.project        
+                row.custom_business_unit = doc.custom_business_unit
+                row.cost_center = visit.cost_center
+                row.custom_city = doc.custom_city
+                row.territory = doc.territory
+                row.project = doc.project        
             # row.uom=uom
     
     # else:
@@ -496,3 +509,31 @@ def create_so_contract_renew(so_name, contract_start_date, contract_period):
     frappe.msgprint(_("Contract Renew {0} is created".format(get_link_to_form('Sales Order', doc.name))))
 
     return doc.name
+
+
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def get_service_item(doctype, txt, searchfield, start, page_len, filters):
+    parent = filters.get('parent')
+    item_list = frappe.get_all("Sales Order Item",
+                           parent_doctype = "Sales Order", 
+                           filters={"parent":parent},
+                           fields=["item_code"],as_list=1)
+    items = tuple(set(item_list))
+    return items
+
+
+def validate_visit_qty_in_so(self, method):
+    if len(self.custom_cost_center_details) > 0:
+        for item in self.items:
+            item_qty = item.qty
+            visit_qty = 0
+            for row in self.custom_cost_center_details:
+                if row.item == item.item_code:
+                    visit_qty = visit_qty + row.qty
+            if item_qty != visit_qty:
+                frappe.throw(_("In cost center Details Table For Item {0} total qty must ne {1}").format(item.item_code, item.qty))
+            else:
+                pass
+
+        
