@@ -133,13 +133,13 @@ def check_contact_end_date(self, method):
 
     if contract_start_date != None and contract_end_date != None:
 
-        if contract_end_date < contract_start_date:
-             frappe.throw(_('Contract end date must be greater than Contract start date'))
+        # if contract_end_date < contract_start_date:
+        #      frappe.throw(_('Contract end date must be greater than Contract start date'))
 
-        contract_year_last_date = add_to_date(contract_start_date, years=1)
-        if add_to_date(contract_year_last_date, days=-1) < contract_end_date:
-            frappe.throw(_('Contract cann`t be more than a year, contract dates should be between {0} and {1}'
-                           ).format(contract_start_date, add_to_date(contract_year_last_date, days=-1)))
+        # contract_year_last_date = add_to_date(contract_start_date, years=1)
+        # if add_to_date(contract_year_last_date, days=-1) < contract_end_date:
+        #     frappe.throw(_('Contract cann`t be more than a year, contract dates should be between {0} and {1}'
+        #                    ).format(contract_start_date, add_to_date(contract_year_last_date, days=-1)))
 
         if self.custom_billing_type != 'Advance-Onetime':    
 
@@ -162,9 +162,9 @@ def check_contact_end_date(self, method):
                         slot_end_dates = add_to_date(slot_start_date, months=month_frequency)
                         slot_start_date = slot_end_dates
 
-            last_slot_end_date = add_to_date(slot_start_date, days=-1)
-            if last_slot_end_date != self.custom_contract_end_date:
-                frappe.throw(_("Slot end date is invalid it should be {0}".format(last_slot_end_date)))
+            # last_slot_end_date = add_to_date(slot_start_date, days=-1)
+            # if last_slot_end_date != self.custom_contract_end_date:
+            #     frappe.throw(_("Slot end date is invalid it should be {0}".format(last_slot_end_date)))
 
 def validate_cost_center_table(self, method):
     if self.is_new() and len(self.custom_cost_center_details) > 0:
@@ -250,6 +250,12 @@ def set_count_of_visits_in_a_slot(so, planned_visit_date):
             break
 
 def set_contract_end_date_based_on_contract_type(self, method):
+
+    if self.custom_contract_start_date != None and self.custom_contract_end_date != None:
+
+        if self.custom_contract_end_date < self.custom_contract_start_date:
+             frappe.throw(_('Contract end date must be greater than Contract start date'))
+
     if self.custom_contract_period == "One Time":
         self.custom_contract_end_date = self.custom_contract_start_date
     elif self.custom_contract_period == "3 Month Contract":
