@@ -128,7 +128,8 @@ doc_events = {
     "Quotation":{
         "validate":["russeell.api.validate_quotation_cost_section",
                     # "russeell.api.validate_item_rate",
-                    "russeell.api.set_contract_end_date_based_on_contract_type"]
+                    "russeell.api.set_contract_end_date_based_on_contract_type"],
+        "on_submit" : "russeell.api.validate_contract_dates_in_qo"
     },
     "Sales Order":{
         # "before_naming":"russeell.api.create_so_contract_renew",

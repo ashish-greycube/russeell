@@ -29,7 +29,10 @@ class VisitCD(Document):
 			# validate planned visit date
 			so_doc = frappe.get_doc('Sales Order', self.sales_order)
 			planned_visit = getdate(self.planned_visit_date)
-			if planned_visit < so_doc.custom_contract_start_date or planned_visit > so_doc.custom_contract_end_date:
+
+			if so_doc.custom_contract_start_date == None or so_doc.custom_contract_end_date == None:
+				frappe.throw(_('Contract Start Date and Contract End Date Not Set in Sales Order {0}').format(so_doc.name))
+			elif planned_visit < getdate(so_doc.custom_contract_start_date) or planned_visit > getdate(so_doc.custom_contract_end_date):
 				frappe.throw(_("Planned Visit Date Must be between {0} and {1}"
 				   ).format(so_doc.custom_contract_start_date, so_doc.custom_contract_end_date))
 				

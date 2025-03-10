@@ -271,6 +271,13 @@ def set_contract_end_date_based_on_contract_type(self, method):
     elif self.custom_contract_period == "5 Year":
         self.custom_contract_end_date = add_to_date(self.custom_contract_start_date, years=5, days=-1)
 
+def validate_contract_dates_in_qo(self, method):
+    if self.custom_quotation_type:
+        if self.custom_contract_period == None or self.custom_contract_period == '':
+            frappe.throw(_('Contract Period is mandatory field'))
+        if self.custom_contract_start_date == None or self.custom_contract_start_date == '':
+            frappe.throw(_('Contract Start Date is mandatory field'))
+
 @frappe.whitelist()
 def get_default_warehouse_for_consumed_item(item_code,company):
     from erpnext.stock.get_item_details import get_item_warehouse
