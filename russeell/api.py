@@ -536,16 +536,35 @@ def get_service_item(doctype, txt, searchfield, start, page_len, filters):
     return items
 
 
+@frappe.whitelist()
+def get_item_rates(parent, item_code):
+    item_list = frappe.get_all("Sales Order Item",
+                           parent_doctype = "Sales Order", 
+                           filters={"parent":parent, "item_code": item_code},
+                           fields=["rate"])
+    
+    item_rate_list = []
+    for i in item_list:
+        item_rate_list.append(i.rate)
+  
+    return item_rate_list
+
 def validate_visit_qty_in_so(self, method):
     if len(self.custom_cost_center_details) > 0:
         for item in self.items:
             item_qty = item.qty
             visit_qty = 0
             for row in self.custom_cost_center_details:
-                if row.item == item.item_code:
+
+                # validate item rate
+                if row.item_rate <= 0:
+                    frappe.throw(_("In cost center Details Row {0}: Table For Item {1} rate must be greater than 0").format(row.idx,item.item_code))
+
+                if row.item == item.item_code and row.item_rate == item.rate:
                     visit_qty = visit_qty + row.qty
+
             if item_qty != visit_qty:
-                frappe.throw(_("In cost center Details Table For Item {0} total qty must ne {1}").format(item.item_code, item.qty))
+                frappe.throw(_("In cost center Details Table For Item {0} which has rate {1}, total qty must be {2}").format(item.item_code, item.rate, item.qty))
             else:
                 pass
 

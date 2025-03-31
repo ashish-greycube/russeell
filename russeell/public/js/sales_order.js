@@ -8,78 +8,78 @@ frappe.ui.form.on("Sales Order", {
             );
         }
 
-        if(frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold" 
+        if(frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold"
             && frm.doc.custom_billing_period_slot.length > 0
-            && frm.doc.custom_billing_period_slot[0].no_of_visits > 0 
+            && frm.doc.custom_billing_period_slot[0].no_of_visits > 0
             && !frm.doc.custom_billing_period_slot[0].sales_invoice_ref
             && frm.doc.custom_billing_type
             && frm.doc.custom_billing_type != "Rear-Monthly"
             && frm.doc.custom_billing_type != "Rear-Quaterly"
             && frm.doc.custom_billing_type != "Rear-HalfYearly"){
-                
-                frm.add_custom_button(__("Initial Sales Invoice"), () => {
-                    frappe.db.get_list('Visit CD', {
-                        fields: ['planned_visit_date', 'name'],
-                        filters: {
-                            sales_order: frm.doc.name
-                        }
-                    }).then(records => {
-                        let visit_date=[]
-                        records.forEach(visit => {
-                            if (!visit.planned_visit_date){
-                                visit_date.push(visit.name)
-                            }
-                        });
-                        if(visit_date.length > 0){
-                            frappe.throw(__('please add planned visit date in all visits'))
-                        }
-                        else{
-                            make_sales_invoice(frm)
-                        }
-                    })
-                }).css({'background-color':'#52c4e6','color':'white'});
 
-            }
+            frm.add_custom_button(__("Initial Sales Invoice"), () => {
+                frappe.db.get_list('Visit CD', {
+                    fields: ['planned_visit_date', 'name'],
+                    filters: {
+                        sales_order: frm.doc.name
+                    }
+                }).then(records => {
+                    let visit_date = []
+                    records.forEach(visit => {
+                        if (!visit.planned_visit_date) {
+                            visit_date.push(visit.name)
+                        }
+                    });
+                    if (visit_date.length > 0) {
+                        frappe.throw(__('please add planned visit date in all visits'))
+                    }
+                    else {
+                        make_sales_invoice(frm)
+                    }
+                })
+            }).css({ 'background-color': '#52c4e6', 'color': 'white' });
 
-        if (frm.doc.docstatus == 1 && frm.doc.custom_visit_plan){
-            frm.add_custom_button(__("Renew Contract"),() => {
-					frm.trigger('create_renew_contract')
+        }
+
+        if (frm.doc.docstatus == 1 && frm.doc.custom_visit_plan) {
+            frm.add_custom_button(__("Renew Contract"), () => {
+                frm.trigger('create_renew_contract')
             });
         }
     },
 
-    onload: function(frm){
+    onload: function (frm) {
         console.log("Helloooo")
-        if(frm.doc.items.length > 0){
+        if (frm.doc.items.length > 0) {
             console.log("Set Query!!!")
             frm.set_query('item', 'custom_cost_center_details', () => {
                 return {
                     query: "russeell.api.get_service_item",
                     filters: {
-                        parent : frm.doc.name
-                    } 
-            };
+                        parent: frm.doc.name
+                    }
+                };
             })
         }
     },
 
-    create_renew_contract: function(frm){
+    create_renew_contract: function (frm) {
         console.log("Helloo")
         dialog = new frappe.ui.Dialog({
             title: __("Renew Contract"),
             fields: [
                 {
-                    fieldtype:'Date',
-                    fieldname:'contract_start_date',
+                    fieldtype: 'Date',
+                    fieldname: 'contract_start_date',
                     label: __('Contract Start Date'),
                     reqd: 1
                 },
                 {
-                    fieldtype:'Select',
-                    fieldname:'contract_period',
+                    fieldtype: 'Select',
+                    fieldname: 'contract_period',
                     label: __('Contract Period'),
-                    options:["",
-                        "One Time", "3 Month Contract","Half Yearly","Yearly",
+                    options: ["",
+                        "One Time", "3 Month Contract", "Half Yearly", "Yearly",
                         "2 Year", "3 Year", "4 Year", "5 Year"],
                     reqd: 1
                 },
@@ -88,9 +88,9 @@ frappe.ui.form.on("Sales Order", {
             primary_action: function (values) {
                 console.log(values)
                 frappe.call({
-                    method:"russeell.api.create_so_contract_renew",
+                    method: "russeell.api.create_so_contract_renew",
                     args: {
-                        so_name:frm.doc.name,
+                        so_name: frm.doc.name,
                         contract_start_date: values.contract_start_date,
                         contract_period: values.contract_period
                     }
@@ -104,53 +104,65 @@ frappe.ui.form.on("Sales Order", {
 })
 
 frappe.ui.form.on("Cost Center List CT", {
-    item: function(frm, cdt, cdn){
+
+    item_rate: function (frm, cdt, cdn) {
         let row = locals[cdt][cdn]
-        frm.doc.items.forEach((item) => {
-            if(row.item === item.item_code){
-                frappe.model.set_value(cdt, cdn, 'item_rate', item.rate)
-            }
-        })
+        if (row.item && row.item_rate) {
+            frappe.call({
+                method: "russeell.api.get_item_rates",
+                args: {
+                    item_code: row.item,
+                    parent: frm.doc.name
+                },
+                callback: function (r) {
+                    let item_rate_list = r.message
+                    if (item_rate_list.includes(row.item_rate) === false) {
+                        frappe.model.set_value(cdt, cdn, 'item_rate', '')
+                        frappe.throw(__('You can not add item rate which is not present in item rate list {0}', [item_rate_list]))
+                    }  
+                }
+            })
+        }
     }
 })
 
 frappe.ui.form.on("Billing Period Slots CT", {
-    no_of_visits: function(frm, cdt, cdn) {
+    no_of_visits: function (frm, cdt, cdn) {
         console.log("change no of visit")
         let row = locals[cdt][cdn]
 
-        if (frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold" 
+        if (frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold"
             && frm.doc.custom_billing_period_slot.length > 0
-            && row.no_of_visits > 0 
+            && row.no_of_visits > 0
             && !row.sales_invoice_ref
-            && frm.doc.custom_billing_type){
-            if(frm.doc.custom_billing_type!= "Rear-Monthly"
+            && frm.doc.custom_billing_type) {
+            if (frm.doc.custom_billing_type != "Rear-Monthly"
                 && frm.doc.custom_billing_type != "Rear-Quaterly"
-                && frm.doc.custom_billing_type != "Rear-HalfYearly"){
-                    console.log(row.slot_start_date, 'slot_start_date', frappe.datetime.get_today(), 'frappe.get_today')
-                    if(row.slot_start_date < frappe.datetime.get_today()){
-                        // frm.set_df_property("custom_billing_period_slot", "hidden", 0, row.name, "create_si");
-                        frm.set_df_property('custom_billing_period_slot', 'hidden', 0, frm.docname, 'create_si', row.name)
-                        console.log('visible button')
-                        // row.add_custom_button(__("Create SI", () => {
-                        //     console.log('inside button')
-                        //     frappe.call({
-                        //         method: "russeell.api.make_sales_invoice",
-                        //         args: {
-                        //             sales_order: frm.doc.name,
-                        //             slot_start_date: row.slot_start_date,
-                        //             slot_end_date: row.slot_end_date,
-                        //             no_of_visits: row.no_of_visits
-                        //         },
-                        //         callback: function (r) {
-                        //             console.log(r.message)
-                        //         }
-                        //     })
-                        // }))
-                    }
+                && frm.doc.custom_billing_type != "Rear-HalfYearly") {
+                console.log(row.slot_start_date, 'slot_start_date', frappe.datetime.get_today(), 'frappe.get_today')
+                if (row.slot_start_date < frappe.datetime.get_today()) {
+                    // frm.set_df_property("custom_billing_period_slot", "hidden", 0, row.name, "create_si");
+                    frm.set_df_property('custom_billing_period_slot', 'hidden', 0, frm.docname, 'create_si', row.name)
+                    console.log('visible button')
+                    // row.add_custom_button(__("Create SI", () => {
+                    //     console.log('inside button')
+                    //     frappe.call({
+                    //         method: "russeell.api.make_sales_invoice",
+                    //         args: {
+                    //             sales_order: frm.doc.name,
+                    //             slot_start_date: row.slot_start_date,
+                    //             slot_end_date: row.slot_end_date,
+                    //             no_of_visits: row.no_of_visits
+                    //         },
+                    //         callback: function (r) {
+                    //             console.log(r.message)
+                    //         }
+                    //     })
+                    // }))
+                }
             }
-            else{
-                if(row.slot_end_date  < frappe.datetime.get_today()){
+            else {
+                if (row.slot_end_date < frappe.datetime.get_today()) {
                     row.add_custom_button(__("Create SI", () => {
                         frappe.call({
                             method: "russeell.api.make_sales_invoice",
@@ -170,32 +182,32 @@ frappe.ui.form.on("Billing Period Slots CT", {
         }
     },
 
-    create_si: function(frm,cdt, cdn){
+    create_si: function (frm, cdt, cdn) {
         let row = locals[cdt][cdn]
-        if (frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold" 
+        if (frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold"
             && frm.doc.custom_billing_period_slot.length > 0
-            && row.no_of_visits > 0 
+            && row.no_of_visits > 0
             && !row.sales_invoice_ref
-            && frm.doc.custom_billing_type){
-                if(frm.doc.custom_billing_type!= "Rear-Monthly"
-                    && frm.doc.custom_billing_type != "Rear-Quaterly"
-                    && frm.doc.custom_billing_type != "Rear-HalfYearly"){
-                        // console.log(row.slot_start_date, 'slot_start_date', frappe.datetime.get_today(), 'frappe.get_today')
-                        if(row.slot_start_date < frappe.datetime.get_today()){
-                            // console.log("Create SI", frm.name, cdt, cdn)
-                            make_si_for_pervious_slots(frm, cdn, cdt)
-                        }
-                        else{frappe.msgprint(__('You Cann`t Create Past SI as criteria is not matched. <br> ex. existing si is present OR zero no. of visit OR no past slot dates'))}
-                    }
-                else{
-                    if(row.slot_end_date  < frappe.datetime.get_today()){
-                        // console.log("Create SI", frm.name, cdt, cdn)
-                        make_si_for_pervious_slots(frm, cdn, cdt)
-                    }
-                    else{frappe.msgprint(__('You Cann`t Create Past SI as criteria is not matched. <br> ex. existing si is present OR zero no. of visit OR no past slot dates'))}
+            && frm.doc.custom_billing_type) {
+            if (frm.doc.custom_billing_type != "Rear-Monthly"
+                && frm.doc.custom_billing_type != "Rear-Quaterly"
+                && frm.doc.custom_billing_type != "Rear-HalfYearly") {
+                // console.log(row.slot_start_date, 'slot_start_date', frappe.datetime.get_today(), 'frappe.get_today')
+                if (row.slot_start_date < frappe.datetime.get_today()) {
+                    // console.log("Create SI", frm.name, cdt, cdn)
+                    make_si_for_pervious_slots(frm, cdn, cdt)
                 }
+                else { frappe.msgprint(__('You Cann`t Create Past SI as criteria is not matched. <br> ex. existing si is present OR zero no. of visit OR no past slot dates')) }
             }
-        else{
+            else {
+                if (row.slot_end_date < frappe.datetime.get_today()) {
+                    // console.log("Create SI", frm.name, cdt, cdn)
+                    make_si_for_pervious_slots(frm, cdn, cdt)
+                }
+                else { frappe.msgprint(__('You Cann`t Create Past SI as criteria is not matched. <br> ex. existing si is present OR zero no. of visit OR no past slot dates')) }
+            }
+        }
+        else {
             frappe.msgprint(__('You Cann`t Create Past SI as criteria is not matched. <br> ex. existing si is present OR zero no. of visit OR no past slot dates'))
         }
     }
@@ -235,7 +247,7 @@ function make_sales_invoice(frm) {
     })
 }
 
-function make_si_for_pervious_slots(frm, cdn, cdt){
+function make_si_for_pervious_slots(frm, cdn, cdt) {
     let row = locals[cdt][cdn]
     frappe.call({
         method: "russeell.api.make_sales_invoice",
@@ -248,5 +260,5 @@ function make_si_for_pervious_slots(frm, cdn, cdt){
         callback: function (r) {
             console.log(r.message)
         }
-        })
+    })
 }
