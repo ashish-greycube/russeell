@@ -243,8 +243,13 @@ def set_count_of_visits_in_a_slot(so, planned_visit_date):
         visit_date = getdate(planned_visit_date)
         # print(type(slot.slot_start_date), '-----slot.slot_start_date' , type(visit_date), '-----------planned_visit_date')
         if visit_date >= slot.slot_start_date and visit_date <= slot.slot_end_date:
+            visit_list = frappe.db.get_all('Visit CD', filters={'sales_order': doc.name, 'planned_visit_date': ['between', [slot.slot_start_date, slot.slot_end_date]]},
+                                              fields=["COUNT(*) as total_visits"])
+
             print(slot.no_of_visits, '-----no_of_visits', slot.slot_start_date, '-slot_start_date', slot.slot_end_date, '--slot_end_date')
-            visits = slot.no_of_visits + 1
+
+            visits = (visit_list[0].total_visits if len(visit_list) else 0) + 1
+
             frappe.db.set_value('Billing Period Slots CT', slot.name, 'no_of_visits', visits)
             # print(slot.no_of_visits, '-------after increaing')
             break
