@@ -292,6 +292,19 @@ def get_default_warehouse_for_consumed_item(item_code,company):
 
 @frappe.whitelist()
 def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
+    frappe.enqueue(
+        _make_visit_plan,
+        queue='long',
+        job_name="make_visit_plan_and_visits",
+        sale_order=sale_order,
+        customer=customer,
+        address=address,
+        no_of_visit=no_of_visit,
+        contact_person=contact_person
+    )
+    
+
+def _make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
     visit_plan = frappe.new_doc("Visit Plan CD")
     visit_plan.date = frappe.utils.nowdate(),
     visit_plan.sales_order =  sale_order,
@@ -311,7 +324,7 @@ def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
 
     frappe.db.set_value('Sales Order', sale_order, 'custom_visit_plan', visit_plan.name)
 
-    so_items = frappe.db.get_list("Sales Order Item", parent_doctype="Sales Order", filters={'parent': sale_order},fields=['item_code', 'item_name'],)
+    # so_items = frappe.db.get_list("Sales Order Item", parent_doctype="Sales Order", filters={'parent': sale_order},fields=['item_code', 'item_name'],)
 
     so = frappe.get_doc("Sales Order", sale_order)
 
