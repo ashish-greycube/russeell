@@ -321,7 +321,7 @@ def _make_visit_plan(sale_order, customer, address, no_of_visit, contact_person)
         visit_plan.customer_address = address
    
     visit_plan.save(ignore_permissions=True)
-
+    frappe.db.commit()
     frappe.db.set_value('Sales Order', sale_order, 'custom_visit_plan', visit_plan.name)
 
     # so_items = frappe.db.get_list("Sales Order Item", parent_doctype="Sales Order", filters={'parent': sale_order},fields=['item_code', 'item_name'],)
@@ -343,15 +343,18 @@ def _make_visit_plan(sale_order, customer, address, no_of_visit, contact_person)
                 # for item in so_items:
                 #     visit.append("service_list",{"item_code": item.item_code, "item_name":item.item_name})
                 visit.save(ignore_permissions=True)
+                frappe.db.commit()
 
     visit_details = frappe.db.get_list("Visit CD", filters={'visit_plan_reference': visit_plan.name}, fields=['name'], order_by="creation asc")
 
     for vp in visit_details:
         visit_plan.append("visit_table",{"visit_no": vp.name})
         visit_plan.save(ignore_permissions=True)
-    frappe.msgprint(_("Visit Plan {0} and {1} visits are created").format(visit_plan.name, no_of_visit), alert=True)
+    frappe.db.commit()
+    # frappe.msgprint(_("Visit Plan {0} and {1} visits are created").format(visit_plan.name, no_of_visit), alert=True)
 
-    return visit_plan, visit
+    return True
+    # return visit_plan, visit
 
 @frappe.whitelist()
 def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits):
