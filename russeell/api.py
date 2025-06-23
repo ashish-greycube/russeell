@@ -350,7 +350,7 @@ def _make_visit_plan(sale_order, customer, address, no_of_visit, contact_person)
 
     for vp in visit_details:
         visit_plan.append("visit_table",{"visit_no": vp.name})
-        visit_plan.save(ignore_permissions=True)
+    visit_plan.save(ignore_permissions=True)
     frappe.db.commit()
     # frappe.msgprint(_("Visit Plan {0} and {1} visits are created").format(visit_plan.name, no_of_visit), alert=True)
 
