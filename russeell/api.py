@@ -302,6 +302,7 @@ def make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
         no_of_visit=no_of_visit,
         contact_person=contact_person
     )
+    frappe.msgprint(_("Visit Plan and  visits are kept in queue for creation. Pl check after 10 mins"))
     
 
 def _make_visit_plan(sale_order, customer, address, no_of_visit, contact_person):
