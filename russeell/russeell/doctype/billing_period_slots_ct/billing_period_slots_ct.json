@@ -11,7 +11,14 @@
   "column_break_edhu",
   "slot_end_date",
   "no_of_visits",
-  "sales_invoice_ref"
+  "sales_invoice_ref",
+  "pending_additional_advance_sales_invoice",
+  "section_break_hqlr",
+  "sales_invoice_ref_1",
+  "column_break_wtkq",
+  "sales_invoice_ref_2",
+  "column_break_cuse",
+  "sales_invoice_ref_3"
  ],
  "fields": [
   {
@@ -53,13 +60,58 @@
    "fieldname": "create_si",
    "fieldtype": "Button",
    "label": "Create Past SI"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "pending_additional_advance_sales_invoice",
+   "fieldtype": "Check",
+   "label": "Pending Additional Advance Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_hqlr",
+   "fieldtype": "Section Break",
+   "label": "Additional Advance Sales Invoice"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "sales_invoice_ref_1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sales Invoice Ref 1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_wtkq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "sales_invoice_ref_2",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sales Invoice Ref 2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cuse",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "sales_invoice_ref_3",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Sales Invoice Ref 3",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-04-17 08:03:40.901508",
+ "modified": "2025-07-17 13:44:30.120588",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Billing Period Slots CT",

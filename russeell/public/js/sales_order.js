@@ -1,5 +1,9 @@
 frappe.ui.form.on("Sales Order", {
     refresh: function (frm) {
+        if (frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold" && frm.doc.custom_billing_period_slot.length > 0 && frm.doc.custom_visit_plan) {
+            frm.remove_custom_button('Update Items');
+            frm.add_custom_button(__("Update Items (visits)"), () => update_items_and_create_visit(frm)).css({ 'background-color': '#52c4e6', 'color': 'white' })
+        }
         if (frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold" && frm.doc.custom_total_no_of_visits !== 0 && frm.doc.custom_visit_plan === undefined) {
             frm.add_custom_button(__("Visit Plan"), () => {
                 make_visit_pan(frm)
@@ -8,14 +12,14 @@ frappe.ui.form.on("Sales Order", {
             );
         }
 
-        if(frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold"
+        if (frm.doc.docstatus == 1 && frm.doc.status !== "Closed" && frm.doc.status !== "On Hold"
             && frm.doc.custom_billing_period_slot.length > 0
             && frm.doc.custom_billing_period_slot[0].no_of_visits > 0
             && !frm.doc.custom_billing_period_slot[0].sales_invoice_ref
             && frm.doc.custom_billing_type
             && frm.doc.custom_billing_type != "Rear-Monthly"
             && frm.doc.custom_billing_type != "Rear-Quaterly"
-            && frm.doc.custom_billing_type != "Rear-HalfYearly"){
+            && frm.doc.custom_billing_type != "Rear-HalfYearly") {
 
             frm.add_custom_button(__("Initial Sales Invoice"), () => {
                 frappe.db.get_list('Visit CD', {
@@ -26,7 +30,7 @@ frappe.ui.form.on("Sales Order", {
                 }).then(records => {
                     let visit_date = []
                     records.forEach(visit => {
-                        if (!visit.planned_visit_date) {
+                        if (!visit.planned_visit_date && visit.additional_visit == 0) {
                             visit_date.push(visit.name)
                         }
                     });
@@ -119,7 +123,7 @@ frappe.ui.form.on("Cost Center List CT", {
                     if (item_rate_list.includes(row.item_rate) === false) {
                         frappe.model.set_value(cdt, cdn, 'item_rate', '')
                         frappe.throw(__('You can not add item rate which is not present in item rate list {0}', [item_rate_list]))
-                    }  
+                    }
                 }
             })
         }
@@ -212,6 +216,203 @@ frappe.ui.form.on("Billing Period Slots CT", {
         }
     }
 })
+
+function update_items_and_create_visit(frm) {
+    let dialog = undefined
+    let table_fields = [
+        {
+            fieldtype: "Link",
+            fieldname: "cost_center",
+            label: __("Cost Center"),
+            options: "Cost Center",
+            read_only: 0,
+            reqd: 1,
+            in_list_view: 1,
+        },
+        {
+            fieldtype: "Link",
+            fieldname: "item_code",
+            label: __("Item Code"),
+            options: "Item",
+            read_only: 0,
+            reqd: 1,
+            in_list_view: 1,
+            get_query: function () {
+                if (frm.doc.custom_no_of_visits > 0) {
+                    return {
+                        "filters": {
+                            "customer": undefined,
+                            "is_sales_item": 1,
+                            "has_variants": 0,
+                            "is_stock_item": 0
+                        },
+                    };
+                }
+                else {
+                    return {
+                        "filters": {
+                            "customer": undefined,
+                            "is_sales_item": 1,
+                            "has_variants": 0
+                        },
+                    }
+                }
+            },
+            onchange: function () {
+                const me = this;
+
+				frm.call({
+					method: "erpnext.stock.get_item_details.get_item_details",
+					args: {
+						doc: frm.doc,
+						args: {
+							item_code: this.value,
+							set_warehouse: frm.doc.set_warehouse,
+							customer: frm.doc.customer,
+							currency: frm.doc.currency,
+							is_internal_customer: frm.doc.is_internal_customer,
+							conversion_rate: frm.doc.conversion_rate,
+							price_list: frm.doc.selling_price_list,
+							price_list_currency: frm.doc.price_list_currency,
+							plc_conversion_rate: frm.doc.plc_conversion_rate,
+							company: frm.doc.company,
+							order_type: frm.doc.order_type,
+							ignore_pricing_rule: frm.doc.ignore_pricing_rule,
+							doctype: frm.doc.doctype,
+							name: frm.doc.name,
+							qty: me.doc.qty || 1,
+							uom: me.doc.uom,
+							pos_profile: cint(frm.doc.is_pos) ? frm.doc.pos_profile : "",
+							tax_category: frm.doc.tax_category,
+							child_doctype: frm.doc.doctype + " Item",
+						},
+					},
+					callback: function (r) {
+						if (r.message) {
+							console.log(r.message, "=======================message========")
+							const { qty, price_list_rate: rate, uom, conversion_factor } = r.message;
+
+							const row = dialog.fields_dict.visit_items.df.data.find(
+								(doc) => doc.idx == me.doc.idx
+							);
+							if (row) {
+								Object.assign(row, {
+									conversion_factor: me.doc.conversion_factor || conversion_factor,
+									uom: me.doc.uom || uom,
+									qty: me.doc.qty || qty,
+									rate: me.doc.rate || rate,
+								});
+								dialog.fields_dict.visit_items.grid.refresh();
+							}
+						}
+					},
+				});
+            }
+        },
+        {
+            fieldtype: "Date",
+            fieldname: "delivery_date",
+            label: __("Delivery Date"),
+            read_only: 0,
+            reqd: 1,
+            in_list_view: 1
+        },
+        {
+            fieldtype: "Int",
+            fieldname: "qty",
+            label: __("Qty"),
+            read_only: 0,
+            reqd: 1,
+            in_list_view: 1,
+            default: 1
+        },
+        {
+            fieldtype: "Currency",
+            fieldname: "rate",
+            label: __("Rate"),
+            read_only: 0,
+            reqd: 1,
+            in_list_view: 1,
+            // fetch_from: "item_code.item_rate"
+        },
+        {
+            fieldtype: "Link",
+            fieldname: "uom",
+            label: __("UOM"),
+            options: "UOM",
+            read_only: 0,
+            reqd: 1,
+            in_list_view: 1,
+            // fetch_from: "item_code.stock_uom"
+        },
+        {
+            fieldtype: "Float",
+			fieldname: "conversion_factor",
+			label: __("Conversion Factor"),
+        },
+        {
+            fieldtype: "Check",
+            fieldname: "is_additional_visit",
+            label: __("Is Additional Visit"),
+            read_only: 1,
+            hidden: 1,
+            default: 1,
+            in_list_view: 0,
+        }
+    ]
+
+    let dialog_field = [
+        {
+            label: "Items",
+            fieldname: "visit_items",
+            fieldtype: "Table",
+            cannot_add_rows: false,
+            cannot_delete_rows: false,
+            in_place_edit: false,
+            reqd: 1,
+            data: [],
+            get_data: () => {
+                return [];
+            },
+            fields: table_fields,
+        }
+    ]
+
+    dialog = new frappe.ui.Dialog({
+        title: __("Select Cost Center Wise Items"),
+        fields: dialog_field,
+        primary_action_label: 'Update',
+        primary_action: function (values) {
+            console.log(values, "======= values=====")
+            const cost_center_items = values.visit_items
+            
+            console.log(cost_center_items, "============cost_center_items=======")
+
+            let items_details = values.visit_items
+            frm.doc.items.forEach(item => {
+                items_details.unshift(item)
+            });
+
+            frappe.call({
+                method: "russeell.api.set_additional_visit_details",
+                args: {
+                    sales_order: frm.doc.name,
+                    additional_visit_details: items_details,
+                },
+                callback: function (r) {
+                    console.log(r.message, "==========")
+                    // frm.save("Update");
+                    frm.reload_doc();
+                }
+            })
+            dialog.hide()
+            refresh_field("items");
+        }
+    })
+    dialog.show()
+    dialog.$wrapper.find('.modal-content').css("width", "900px");
+
+}
 
 function make_visit_pan(frm) {
     frappe.call({

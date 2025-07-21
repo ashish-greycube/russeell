@@ -42,6 +42,11 @@ class TerminationRequestCD(Document):
 			print('inside else consition')
 			for billing_slot in so_doc.custom_billing_period_slot:
 				if billing_slot.slot_start_date <= getdate(self.date) and billing_slot.slot_end_date >= getdate(self.date):
+
+					######## validate slot dates ##########
+					if not billing_slot.sales_invoice_ref and not billing_slot.sales_invoice_ref_1 and not billing_slot.sales_invoice_ref_2 and not billing_slot.sales_invoice_ref_3:
+						frappe.throw(_("You cannot create Termination Request for {0} date as there is no Sales Invoice created for this billing slot").format(self.date))
+
 					slot_start_date = billing_slot.slot_start_date
 					slot_end_date = billing_slot.slot_end_date
 					break
@@ -53,7 +58,28 @@ class TerminationRequestCD(Document):
 															'planned_visit_date': ['between', [slot_start_date, slot_end_date]],
 															'visit_status': ['not in', ['Completed', 'Customer Cancelled']]})
 			self.no_of_credit_note = visit_count
+			self.fill_item_table_for_advance_billing(slot_start_date, slot_end_date)
 			print(visit_count, '--visit_count advance')
+
+	def fill_item_table_for_advance_billing(self, slot_start_date, slot_end_date):
+		if slot_start_date and slot_end_date and len(self.tr_items) < 1:
+			visit_list = frappe.db.get_all('Visit CD', filters={'sales_order': self.so_reference,
+															'planned_visit_date': ['between', [slot_start_date, slot_end_date]],
+															'visit_status': ['not in', ['Completed', 'Customer Cancelled']]},
+															fields=['name', 'sales_invoice_reference'])
+			
+			if len(visit_list) > 0:
+				for visit in visit_list:
+					visit_doc = frappe.get_doc('Visit CD', visit.name)
+					if len(visit_doc.service_list) > 0:
+						for item in visit_doc.service_list:
+							row = self.append('tr_items', {})
+							row.item = item.item_code
+							row.item_name = item.item_name
+							row.qty = 1
+							row.item_rate = item.rate
+							row.sales_invoice_ref = visit_doc.sales_invoice_reference
+
 
 	def set_status_of_visit_and_visit_plan_for_advance(self):
 		so_doc = frappe.get_doc('Sales Order', self.so_reference)
@@ -199,8 +225,31 @@ def make_sales_invoice(sales_order, slot_date, si_item_qty, termination_req, cos
 
 @frappe.whitelist()
 def make_credit_note(termination_req, sales_order, slot_date, si_item_qty, cost_center):
+	termination = frappe.get_doc('Termination Request CD', termination_req)
+
+	unique_si_ref = []
+	for si in termination.tr_items:
+		if si.sales_invoice_ref not in unique_si_ref:
+			unique_si_ref.append(si.sales_invoice_ref)
+
+	# print(unique_si_ref, "==============unique_si_ref=============")
+
+	if len(unique_si_ref) > 0:
+		credit_notes = []
+		for si_ref in unique_si_ref:
+			si = _make_credit_note(termination_req, sales_order, slot_date, si_item_qty, cost_center, si_ref)
+			credit_notes.append(si)
+
+		# print(credit_notes, "============credit_notes=================")
+		frappe.db.set_value('Sales Order', sales_order, 'status', 'Closed')
+		frappe.db.set_value('Termination Request CD', termination.name, 'termination_sales_invoice', ", ".join((ele if ele!=None else '') for ele in credit_notes))
+		frappe.msgprint(_("Credit Notes {0} Created").format(", ".join((ele if ele!=None else '') for ele in credit_notes)), alert=True)
+
+@frappe.whitelist()
+def _make_credit_note(termination_req, sales_order, slot_date, si_item_qty, cost_center, si_ref):
 	doc = frappe.get_doc('Sales Order', sales_order)
 	termination = frappe.get_doc('Termination Request CD', termination_req)
+
 	si = frappe.new_doc("Sales Invoice")
 	si.customer = doc.customer
 	si.due_date = nowdate()
@@ -213,30 +262,30 @@ def make_credit_note(termination_req, sales_order, slot_date, si_item_qty, cost_
 
 	for billing_slot in doc.custom_billing_period_slot:
 		if billing_slot.slot_start_date <= getdate(slot_date) and billing_slot.slot_end_date >= getdate(slot_date):
-			si_ref = billing_slot.sales_invoice_ref
+				main_si_ref = billing_slot.sales_invoice_ref
 
 	si.return_against=si_ref,
 	cost_center_doc = frappe.get_doc("Cost Center", cost_center)
 	for item in termination.tr_items:
-		row = si.append('items', {})
-		row.item_code = item.item
-		row.rate = flt((item.item_rate),2)
-		row.qty = -int(item.qty)
-		# print(-int(si_item_qty) , '----int(si_item_qty)')
-		row.sales_order = sales_order
-		# row.so_detail=item.name
-		row.cost_center=cost_center
-		row.custom_business_unit=cost_center_doc.custom_business_unit or ''
-		row.territory=cost_center_doc.custom_territory
-		row.custom_city=cost_center_doc.custom_city
-		# row.asset = "ACC-ASS-2024-00001" or ""
-	# print(sales_order, slot_date, si_item_qty)
+		if item.sales_invoice_ref == si_ref or (item.sales_invoice_ref == None and si_ref == main_si_ref):
+			row = si.append('items', {})
+			row.item_code = item.item
+			row.rate = flt((item.item_rate),2)
+			row.qty = -int(item.qty)
+			# print(-int(si_item_qty) , '----int(si_item_qty)')
+			row.sales_order = sales_order
+			# row.so_detail=item.name
+			row.cost_center=cost_center
+			row.custom_business_unit=cost_center_doc.custom_business_unit or ''
+			row.territory=cost_center_doc.custom_territory
+			row.custom_city=cost_center_doc.custom_city
+			# row.asset = "ACC-ASS-2024-00001" or ""
+		# print(sales_order, slot_date, si_item_qty)
 
 	si.submit()
 
-	print(si.name, '---si.name')
-	frappe.db.set_value('Sales Order', doc.name, 'status', 'Closed')
-	frappe.db.set_value('Termination Request CD', termination.name, 'termination_sales_invoice', si.name)
+	# print(si.name, '---si.name')
+	
 	# termination.update({'termination_sales_invoice': si.name})
-	frappe.msgprint(_("Sales Invoice {0} Created").format(si.name), alert=True)
+	# frappe.msgprint(_("Sales Invoice {0} Created").format(si.name), alert=True)
 	return si.name

@@ -40,7 +40,11 @@ class VisitCD(Document):
 			changed_date = self.has_value_changed("planned_visit_date")   # will return true or false
 			old_doc = self.get_doc_before_save()
 			if changed_date and old_doc.planned_visit_date == None:
-				set_count_of_visits_in_a_slot(self.sales_order, self.planned_visit_date)
+				if self.additional_visit == 1:
+					set_count_of_visits_in_a_slot(self.sales_order, self.planned_visit_date, is_additional_visit=True)
+				else:
+					set_count_of_visits_in_a_slot(self.sales_order, self.planned_visit_date, is_additional_visit=False)
+
 			elif changed_date:
 				frappe.throw(_('You Cann`t Change Planned Visit Date'))
 			else:

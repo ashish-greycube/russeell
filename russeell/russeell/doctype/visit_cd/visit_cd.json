@@ -17,6 +17,7 @@
   "sales_order",
   "visit_plan_reference",
   "column_break_hecv",
+  "additional_visit",
   "cost_center",
   "cost_center_name_in_arabic",
   "custom_business_unit",
@@ -261,11 +262,20 @@
    "label": "Customer Email",
    "options": "Email",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "additional_visit",
+   "fieldtype": "Check",
+   "in_standard_filter": 1,
+   "label": "Additional Visit",
+   "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-18 10:29:10.776205",
+ "modified": "2025-07-17 11:06:56.758485",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Visit CD",
@@ -285,6 +295,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

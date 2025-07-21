@@ -153,7 +153,8 @@ doc_events = {
 scheduler_events = {
     "daily": [
 		"russeell.api.create_si_for_advance_billing_type",
-        "russeell.api.create_si_for_rear_billing_type"
+        "russeell.api.create_si_for_rear_billing_type",
+        "russeell.api.create_pending_si_for_additional_visits"
 	],
 }
 

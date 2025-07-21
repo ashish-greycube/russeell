@@ -1,8 +1,11 @@
 from __future__ import unicode_literals
 import frappe
 from frappe import msgprint, _
-from frappe.utils import flt, getdate, nowdate, add_to_date, get_link_to_form
+from frappe.utils import flt, getdate, nowdate, add_to_date, get_link_to_form, cstr
 from datetime import datetime
+import json
+
+REAR_BILLING_TYPES = ["Rear-Monthly", "Rear-Quaterly", "Rear-HalfYearly"]
 
 def validate_quotation_cost_section(self, method):
   
@@ -126,7 +129,7 @@ def check_contact_end_date(self, method):
     contract_start_date = self.custom_contract_start_date
     contract_end_date = self.custom_contract_end_date
 
-    print(self.custom_billing_type, '-----self.custom_billing_type')
+    # print(self.custom_billing_type, '-----self.custom_billing_type')
 
     if self.custom_billing_type == '':
         print('not custom_billing_type')
@@ -157,8 +160,8 @@ def check_contact_end_date(self, method):
                 month_frequency = 12
 
             slot_end_dates = ''
-            slot_start_date = contract_start_date
-            while slot_end_dates < contract_end_date:
+            slot_start_date = getdate(contract_start_date)
+            while getdate(slot_end_dates) < getdate(contract_end_date):
                         slot_end_dates = add_to_date(slot_start_date, months=month_frequency)
                         slot_start_date = slot_end_dates
 
@@ -236,21 +239,31 @@ def set_so_billing_period_slots(self, method):
 #             visit.sales_invoice_reference = self.name
 #             visit.save()
 
-def set_count_of_visits_in_a_slot(so, planned_visit_date):
+def set_count_of_visits_in_a_slot(so, planned_visit_date, is_additional_visit=False):
     doc = frappe.get_doc('Sales Order', so)
 
     for slot in doc.custom_billing_period_slot:
         visit_date = getdate(planned_visit_date)
         # print(type(slot.slot_start_date), '-----slot.slot_start_date' , type(visit_date), '-----------planned_visit_date')
         if visit_date >= slot.slot_start_date and visit_date <= slot.slot_end_date:
+
+            ###### validate slot dates ######
+            # if slot.slot_end_date < nowdate() and (
+            #     (is_additional_visit == False and doc.custom_billing_type not in REAR_BILLING_TYPES)               ### Advance Billing Type & Not Additional Visit
+            #     or (doc.custom_billing_type in REAR_BILLING_TYPES)):                                                ### Rear Billing Type
+            #     frappe.throw(_("Planned Visit date {0} is not valid for the slot {1} to {2}").format(planned_visit_date, slot.slot_start_date, slot.slot_end_date)) 
+            
             visit_list = frappe.db.get_all('Visit CD', filters={'sales_order': doc.name, 'planned_visit_date': ['between', [slot.slot_start_date, slot.slot_end_date]]},
-                                              fields=["COUNT(*) as total_visits"])
+                                            fields=["COUNT(*) as total_visits"])
 
             print(slot.no_of_visits, '-----no_of_visits', slot.slot_start_date, '-slot_start_date', slot.slot_end_date, '--slot_end_date')
 
             visits = (visit_list[0].total_visits if len(visit_list) else 0) + 1
 
             frappe.db.set_value('Billing Period Slots CT', slot.name, 'no_of_visits', visits)
+
+            if is_additional_visit and doc.custom_billing_type not in REAR_BILLING_TYPES:
+                frappe.db.set_value('Billing Period Slots CT', slot.name, 'pending_additional_advance_sales_invoice', 1)
             # print(slot.no_of_visits, '-------after increaing')
             break
 
@@ -263,7 +276,7 @@ def set_contract_end_date_based_on_contract_type(self, method):
 
     if self.custom_contract_period == "One Time":
         self.custom_contract_end_date = self.custom_contract_start_date
-    elif self.custom_contract_period == "3 Month Contract":
+    elif self.custom_contract_period == "3 Month Contract": 
         self.custom_contract_end_date = add_to_date(self.custom_contract_start_date, months=3, days=-1)
     elif self.custom_contract_period == "Half Yearly":
         self.custom_contract_end_date = add_to_date(self.custom_contract_start_date, months=6, days=-1)
@@ -358,23 +371,90 @@ def _make_visit_plan(sale_order, customer, address, no_of_visit, contact_person)
     # return visit_plan, visit
 
 @frappe.whitelist()
-def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits):
+def set_additional_visit_details(sales_order, additional_visit_details):
+    from erpnext.controllers.accounts_controller import update_child_qty_rate
+
+    # print(additional_visit_details, "=================additional_visit_details===============")
+    visit_details = json.loads(additional_visit_details)
+    so = frappe.get_doc("Sales Order", sales_order)
+
+    # print(visit_details, "=================visit_details================")
+    if len(visit_details) > 0:
+        for row in visit_details:
+            if row.get("is_additional_visit") == 1:
+                cc = so.append("custom_cost_center_details", {})
+                cc.item = row.get("item_code")
+                cc.item_name = frappe.db.get_value("Item", row.get("item_code"), "item_name")
+                cc.item_cost_center = row.get("cost_center")
+                cc.item_rate = row.get("item_rate")
+                cc.qty = row.get("qty") or 1
+                cc.item_rate = row.get("rate")
+
+        so.save()
+        frappe.msgprint(_("Additional visits are created successfully"), alert=True)
+
+        # erpnext update Item (child table) function
+        update_child_qty_rate("Sales Order", additional_visit_details, sales_order, child_docname="items")
+
+        # make additional visits
+        for visit in visit_details:
+            if visit.get("is_additional_visit") == 1:
+                make_additional_visits(so.custom_visit_plan, visit)
+
+        return True
+    
+
+def make_additional_visits(visit_plan, additional_visit_details):
+    vp_doc = frappe.get_doc("Visit Plan CD", visit_plan)
+    visit_details = additional_visit_details
+    for new_visit in range(int(visit_details.get("qty"))):
+        new_visit = frappe.new_doc("Visit CD")
+        new_visit.visit_plan_reference = visit_plan
+        new_visit.customer_name = vp_doc.customer
+        new_visit.contact_person = vp_doc.contact_person
+        new_visit.customer_address =  vp_doc.customer_address
+        new_visit.sales_order = vp_doc.sales_order
+        new_visit.cost_center = visit_details.get("cost_center")
+        new_visit.additional_visit = 1
+
+        new_visit.append("service_list",{"item_code": visit_details.get("item_code"), "rate": visit_details.get("rate")})
+        new_visit.save(ignore_permissions=True)
+        
+        vp_doc.append("visit_table", {"visit_no": new_visit.name})
+        vp_doc.save(ignore_permissions=True)
+
+    # print(visit_details, "===========additional_visit_details===========", type(visit_details))
+
+@frappe.whitelist()
+def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits, is_additional_visit=False):
     doc = frappe.get_doc('Sales Order', sales_order)
+
+    # print(doc.name, "====================sales order")
 
     si = frappe.new_doc("Sales Invoice")
     si.customer = doc.customer
     si.custom_slot_start_date = getdate(slot_start_date)
     si.custom_slot_end_date = getdate(slot_end_date)
-    si.due_date = nowdate()
+    si.due_date = getdate(nowdate())
     si.custom_business_unit = doc.custom_business_unit
     si.cost_center = doc.cost_center
     si.custom_city = doc.custom_city
     si.territory = doc.territory
     si.project = doc.project
 
+    filters = {
+        'sales_order': sales_order,
+        'planned_visit_date': ['between', [slot_start_date, slot_end_date]],
+    }
+    if is_additional_visit == True:
+        filters['additional_visit'] = 1
+        filters['sales_invoice_reference']= ['in', ['', None]]
 
-    visit_list = frappe.db.get_all('Visit CD', filters={'sales_order': sales_order,
-                                                        'planned_visit_date': ['between', [slot_start_date, slot_end_date]]},
+    else:
+        filters['additional_visit'] = 0
+
+
+    visit_list = frappe.db.get_all('Visit CD', filters=filters,
                                                 fields=['name', 'cost_center'])
     if len(visit_list) > 0:
         
@@ -394,24 +474,7 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
                 row.cost_center = visit.cost_center
                 row.custom_city = doc.custom_city
                 row.territory = doc.territory
-                row.project = doc.project        
-            # row.uom=uom
-    
-    # else:
-    #     for item in doc.items:
-    #         row = si.append('items', {})
-    #         row.item_code = item.item_code
-    #         row.rate = item.rate
-    #         # uom = frappe.db.get_value('Item', item.item_code, 'stock_uom')
-    #         row.qty = 1
-    #         row.sales_order = sales_order
-    #         row.so_detail=item.name
-
-    #         row.custom_business_unit = doc.custom_business_unit
-    #         row.cost_center = visit.cost_center
-    #         row.custom_city = doc.custom_city
-    #         row.territory = doc.territory
-    #         row.project = doc.project 
+                row.project = doc.project
    
     si.run_method("set_missing_values")
     si.run_method("calculate_taxes_and_totals")
@@ -419,27 +482,45 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
     si.run_method("set_po_nos")
     si.run_method("set_use_serial_batch_fields")
 
+    # print(si.due_date, "==================",si.posting_date, "==============================")
+    if getdate(si.due_date) < getdate(si.posting_date):
+        si.due_date = si.posting_date
+
     si.save(ignore_permissions=True)
-    print(si.name, '---si.name')
+    # print(si.name, '---si.name')
+    # print(si.due_date, "==================",si.posting_date, "==============================")
     frappe.msgprint(_("Sales Invoice {0} Created").format(si.name), alert=True)
 
     # add si ref in visit
     billing_slot = frappe.db.get_all('Billing Period Slots CT', filters={'slot_start_date': slot_start_date,'slot_end_date': slot_end_date,
                                                                          'parent':sales_order},
-                                                                fields=['name','sales_invoice_ref'])
+                                                                fields=['name','sales_invoice_ref', 'sales_invoice_ref_1', 'sales_invoice_ref_2', 'sales_invoice_ref_3'])
     
     if len(billing_slot) > 0:
         for bi_slot in billing_slot:
-            frappe.db.set_value('Billing Period Slots CT', bi_slot.name, 'sales_invoice_ref', si.name)
+            if is_additional_visit == True:
+                frappe.db.set_value('Billing Period Slots CT', bi_slot.name, 'pending_additional_advance_sales_invoice', 0)
+                if not bi_slot.sales_invoice_ref_1:
+                    frappe.db.set_value('Billing Period Slots CT', bi_slot.name, 'sales_invoice_ref_1', si.name)
+                elif not bi_slot.sales_invoice_ref_2:
+                    frappe.db.set_value('Billing Period Slots CT', bi_slot.name, 'sales_invoice_ref_2', si.name)
+                elif not bi_slot.sales_invoice_ref_3:
+                    frappe.db.set_value('Billing Period Slots CT', bi_slot.name, 'sales_invoice_ref_3', si.name)
+                else:
+                    pass
+            else:
+                frappe.db.set_value('Billing Period Slots CT', bi_slot.name, 'sales_invoice_ref', si.name)
 
     visit_list = frappe.db.get_all('Visit CD', filters={'sales_order': sales_order,
-                                                        'planned_visit_date': ['between', [slot_start_date, slot_end_date]]},
+                                                        'planned_visit_date': ['between', [slot_start_date, slot_end_date]], 'sales_invoice_reference': ['in', ['', None]]},
                                                 fields=['name'])
 
     if len(visit_list) > 0:
         
         for visit in visit_list:
-            frappe.db.set_value('Visit CD', visit.name, 'sales_invoice_reference', si.name)
+            if not visit.sales_invoice_reference:
+                frappe.db.set_value('Visit CD', visit.name, 'sales_invoice_reference', si.name)
+                
     doc.add_comment("Comment", "Sales Invoice {0} Created".format(si.name))
     return si.name
 
@@ -452,36 +533,37 @@ def create_si_for_advance_billing_type(calender_date=None):
                                                   filters={'slot_start_date': ['=',calender_date],
                                                            'sales_invoice_ref': ['=','']}, 
                                                         fields=['parent', 'slot_start_date', 'slot_end_date', 'no_of_visits'])
-    print(billing_period_slots_list, '---billing_period_slots_list')
+    # print(billing_period_slots_list, '---billing_period_slots_list')
 
     if len(billing_period_slots_list) > 0:
         for billing_slot in billing_period_slots_list:
-            print(billing_slot, '----billing_slot')
+            if billing_slot.no_of_visits > 0:
+                # print(billing_slot, '----billing_slot')
 
-            so_list = frappe.db.get_all('Sales Order',
-                                filters={'custom_billing_type': ['not in', [None, 'Rear-Monthly', 'Rear-Quaterly', 'Rear-HalfYearly']],
-                                         'name': billing_slot.parent,
-                                         'docstatus': 1,
-                                         'status': ['not in', ['Closed', 'On Hold']]},
-                                fields=['name'])
-            if len(so_list) > 0:
-                for so in so_list:
+                so_list = frappe.db.get_all('Sales Order',
+                                    filters={'custom_billing_type': ['not in', [None, 'Rear-Monthly', 'Rear-Quaterly', 'Rear-HalfYearly']],
+                                            'name': billing_slot.parent,
+                                            'docstatus': 1,
+                                            'status': ['not in', ['Closed', 'On Hold']]},
+                                    fields=['name'])
+                if len(so_list) > 0:
+                    for so in so_list:
 
-                    # si_item = frappe.db.get_all('Sales Invoice Item',
-                    #                             parent_doctype='Sales Invoice', 
-                    #                             filters={'sales_order': so.name}, fields=['parent'])
-                    
-                    print(so.name,'--so.name--', billing_slot.slot_start_date, '--billing_slot.slot_start_date--'
-                          ,billing_slot.slot_end_date, '--billing_slot.slot_end_date--',billing_slot.no_of_visits, '--billing_slot.no_of_visits--')
-                    
-                    # if len(si_item) > 0 and frappe.db.exists("Sales Invoice", {"name": si_item[0].parent, 
-                    #                                                            "custom_slot_start_date": billing_slot.slot_start_date}):
-                    #     print('in if condition')
-                    #     break
-                    # else:
-                    from russeell.api import make_sales_invoice
-                    # print('in else condition')
-                    make_sales_invoice(so.name, billing_slot.slot_start_date, billing_slot.slot_end_date, billing_slot.no_of_visits)  
+                        # si_item = frappe.db.get_all('Sales Invoice Item',
+                        #                             parent_doctype='Sales Invoice', 
+                        #                             filters={'sales_order': so.name}, fields=['parent'])
+                        
+                        # print(so.name,'--so.name--', billing_slot.slot_start_date, '--billing_slot.slot_start_date--'
+                            # ,billing_slot.slot_end_date, '--billing_slot.slot_end_date--',billing_slot.no_of_visits, '--billing_slot.no_of_visits--')
+                        
+                        # if len(si_item) > 0 and frappe.db.exists("Sales Invoice", {"name": si_item[0].parent, 
+                        #                                                            "custom_slot_start_date": billing_slot.slot_start_date}):
+                        #     print('in if condition')
+                        #     break
+                        # else:
+                        from russeell.api import make_sales_invoice
+                        # print('in else condition')
+                        make_sales_invoice(so.name, billing_slot.slot_start_date, billing_slot.slot_end_date, billing_slot.no_of_visits)  
 
 
 def create_si_for_rear_billing_type(calender_date=None):
@@ -496,18 +578,43 @@ def create_si_for_rear_billing_type(calender_date=None):
 
     if len(billing_period_slots_list) > 0:
         for billing_slot in billing_period_slots_list:
+            if billing_slot.no_of_visits > 0:
+                so_list = frappe.db.get_all('Sales Order',
+                                    filters={'custom_billing_type': ['in', ['Rear-Monthly', 'Rear-Quaterly', 'Rear-HalfYearly']],
+                                            'name': billing_slot.parent,
+                                            'docstatus': 1,
+                                            'status': ['not in', ['Closed', 'On Hold']]},
+                                    fields=['name'])
+                if len(so_list) > 0:
+                    for so in so_list:
+                        
+                        from russeell.api import make_sales_invoice
+                        make_sales_invoice(so.name, billing_slot.slot_start_date, billing_slot.slot_end_date, billing_slot.no_of_visits)
 
-            so_list = frappe.db.get_all('Sales Order',
-                                filters={'custom_billing_type': ['in', ['Rear-Monthly', 'Rear-Quaterly', 'Rear-HalfYearly']],
-                                         'name': billing_slot.parent,
-                                         'docstatus': 1,
-                                         'status': ['not in', ['Closed', 'On Hold']]},
-                                fields=['name'])
-            if len(so_list) > 0:
-                for so in so_list:
-                    
-                    from russeell.api import make_sales_invoice
-                    make_sales_invoice(so.name, billing_slot.slot_start_date, billing_slot.slot_end_date, billing_slot.no_of_visits)
+def create_pending_si_for_additional_visits(calender_date=None):
+    print('-------------------create_pending_si_for_additional_visits---------------------')
+    if calender_date==None:
+        calender_date = getdate(nowdate())
+
+    pending_si_slots_list = frappe.db.get_all('Billing Period Slots CT', parent_doctype='Sales Order',
+                                                  filters={'pending_additional_advance_sales_invoice': 1}, 
+                                                        fields=['parent', 'slot_start_date', 'slot_end_date', 'no_of_visits'])
+    
+    if len(pending_si_slots_list) > 0:
+        for billing_slot in pending_si_slots_list:
+            if billing_slot.no_of_visits > 0:
+                so_list = frappe.db.get_all('Sales Order',
+                                    filters={'custom_billing_type': ['not in', [None, 'Rear-Monthly', 'Rear-Quaterly', 'Rear-HalfYearly']],
+                                            'name': billing_slot.parent,
+                                            'docstatus': 1,
+                                            'status': ['not in', ['Closed', 'On Hold']]},
+                                    fields=['name'])
+                if len(so_list) > 0:
+                    for so in so_list:
+                        
+                        from russeell.api import make_sales_invoice
+                        is_additional_visit = True
+                        make_sales_invoice(so.name, billing_slot.slot_start_date, billing_slot.slot_end_date, billing_slot.no_of_visits, is_additional_visit)
 
 @frappe.whitelist()
 def create_so_contract_renew(so_name, contract_start_date, contract_period):
