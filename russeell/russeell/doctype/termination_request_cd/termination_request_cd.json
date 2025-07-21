@@ -23,7 +23,8 @@
   "cost_center",
   "termination_sales_invoice",
   "section_break_rhkl",
-  "tr_items"
+  "tr_items",
+  "credit_note_description"
  ],
  "fields": [
   {
@@ -144,12 +145,19 @@
    "label": "Items",
    "mandatory_depends_on": "eval:(doc.no_of_credit_note>0)||(doc.no_of_visits_in_si_itemqty>0)",
    "options": "Termination Request Items CT"
+  },
+  {
+   "fieldname": "credit_note_description",
+   "fieldtype": "HTML",
+   "label": "Credit Note Description",
+   "options": "<hr>\nNote: <br>\n<b>for Advance Billing customers </b><br>- system fetches all items (pending visits) based on the termination date slot.<br>\n- It generates Credit Notes for all the unique Sales Invoices related to those items (visits)."
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-10-29 15:46:58.883584",
+ "modified": "2025-07-21 09:22:44.800026",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Termination Request CD",
@@ -170,6 +178,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
