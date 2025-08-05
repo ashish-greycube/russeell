@@ -478,13 +478,13 @@ def make_sales_invoice(sales_order, slot_start_date, slot_end_date, no_of_visits
    
     si.run_method("set_missing_values")
     si.run_method("calculate_taxes_and_totals")
-    si.run_method("set_payment_schedule")
+    # si.run_method("set_payment_schedule")
     si.run_method("set_po_nos")
     si.run_method("set_use_serial_batch_fields")
 
     # print(si.due_date, "==================",si.posting_date, "==============================")
     if getdate(si.due_date) < getdate(si.posting_date):
-        si.due_date = si.posting_date
+        si.due_date = getdate(si.posting_date)
 
     si.save(ignore_permissions=True)
     # print(si.name, '---si.name')
