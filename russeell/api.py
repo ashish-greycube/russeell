@@ -170,7 +170,7 @@ def check_contact_end_date(self, method):
             #     frappe.throw(_("Slot end date is invalid it should be {0}".format(last_slot_end_date)))
 
 def validate_cost_center_table(self, method):
-    if self.is_new() and len(self.custom_cost_center_details) > 0:
+    if self.is_new() and len(self.custom_cost_center_details) > 0 and not self.custom_original_contract:
         self.custom_cost_center_details = []
 
     if not self.is_new() and self.custom_total_no_of_visits > 0 and len(self.custom_cost_center_details) == 0:
@@ -647,6 +647,7 @@ def create_so_contract_renew(so_name, contract_start_date, contract_period):
 
     doc.custom_visit_plan = None
     doc.custom_billing_period_slot = [] 
+    doc.flags.ignore_mandatory=True
     doc.save(ignore_permissions=True)
     frappe.msgprint(_("Contract Renew {0} is created".format(get_link_to_form('Sales Order', doc.name))))
 

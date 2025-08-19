@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"IvnuC-Kb_7\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Russeell</span>\",\"col\":12}},{\"id\":\"5v2CSXTqJH\",\"type\":\"card\",\"data\":{\"card_name\":\"Transaction\",\"col\":4}},{\"id\":\"CwU2aoktC_\",\"type\":\"card\",\"data\":{\"card_name\":\"Visit\",\"col\":4}},{\"id\":\"yWUSC8nWZb\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Termination Request\",\"col\":3}},{\"id\":\"Ad2AlJfgRR\",\"type\":\"card\",\"data\":{\"card_name\":\"Master\",\"col\":4}}]",
+ "content": "[{\"id\":\"IvnuC-Kb_7\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Russeell</span>\",\"col\":12}},{\"id\":\"ScxLpgq3w_\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Completed Visit\",\"col\":3}},{\"id\":\"Z0XRUW29Eq\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Today Visit\",\"col\":3}},{\"id\":\"BqqY3AgVk9\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Customer Cancelled Visit\",\"col\":3}},{\"id\":\"0p95endOE7\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Customer Cancelled Visit\",\"col\":3}},{\"id\":\"5v2CSXTqJH\",\"type\":\"card\",\"data\":{\"card_name\":\"Transaction\",\"col\":4}},{\"id\":\"CwU2aoktC_\",\"type\":\"card\",\"data\":{\"card_name\":\"Visit\",\"col\":4}},{\"id\":\"Ad2AlJfgRR\",\"type\":\"card\",\"data\":{\"card_name\":\"Master\",\"col\":4}},{\"id\":\"LeopbU7dLX\",\"type\":\"card\",\"data\":{\"card_name\":\"Payment Request\",\"col\":4}}]",
  "creation": "2024-06-03 06:45:14.654886",
  "custom_blocks": [],
  "docstatus": 0,
@@ -13,35 +13,6 @@
  "is_hidden": 0,
  "label": "Russeell",
  "links": [
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Visit",
-   "link_count": 2,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Visit Plan",
-   "link_count": 0,
-   "link_to": "Visit Plan CD",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Visit",
-   "link_count": 0,
-   "link_to": "Visit CD",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
   {
    "hidden": 0,
    "is_query_report": 0,
@@ -179,28 +150,90 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Visit",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Visit Plan",
+   "link_count": 0,
+   "link_to": "Visit Plan CD",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Visit",
+   "link_count": 0,
+   "link_to": "Visit CD",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Termination Request CD",
+   "link_count": 0,
+   "link_to": "Termination Request CD",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Payment Request",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Payment Request",
+   "link_count": 0,
+   "link_to": "Payment Request CD",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2024-07-23 07:21:26.041026",
+ "modified": "2025-08-19 10:06:34.396292",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Russeell",
- "number_cards": [],
+ "number_cards": [
+  {
+   "label": "Today Visit",
+   "number_card_name": "Today Visit"
+  },
+  {
+   "label": "Customer Cancelled Visit",
+   "number_card_name": "Customer Cancelled Visit"
+  },
+  {
+   "label": "Completed Visit",
+   "number_card_name": "Completed Visit"
+  }
+ ],
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
  "quick_lists": [],
  "roles": [],
  "sequence_id": 2.0,
- "shortcuts": [
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Termination Request",
-   "link_to": "Termination Request CD",
-   "stats_filter": "[]",
-   "type": "DocType"
-  }
- ],
+ "shortcuts": [],
  "title": "Russeell"
 }
