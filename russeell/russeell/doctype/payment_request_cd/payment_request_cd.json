@@ -8,28 +8,16 @@
  "engine": "InnoDB",
  "field_order": [
   "request_date",
-  "expense_name",
-  "beneficiary_name",
   "column_break_8",
-  "amount",
   "requested_by",
-  "remark",
-  "amended_from"
+  "amended_from",
+  "section_break_khca",
+  "payment_request_details"
  ],
  "fields": [
   {
-   "fieldname": "remark",
-   "fieldtype": "Data",
-   "label": "Remark"
-  },
-  {
    "fieldname": "column_break_8",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "amount",
-   "fieldtype": "Currency",
-   "label": "Amount"
   },
   {
    "fieldname": "amended_from",
@@ -55,14 +43,14 @@
    "options": "User"
   },
   {
-   "fieldname": "expense_name",
-   "fieldtype": "Data",
-   "label": "Expense Name"
+   "fieldname": "section_break_khca",
+   "fieldtype": "Section Break"
   },
   {
-   "fieldname": "beneficiary_name",
-   "fieldtype": "Data",
-   "label": "Beneficiary Name"
+   "fieldname": "payment_request_details",
+   "fieldtype": "Table",
+   "label": "Payment Request Details",
+   "options": "Payment Request Details CT"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -74,7 +62,7 @@
    "link_fieldname": "custom_payment_request_cd_reference"
   }
  ],
- "modified": "2025-08-19 10:04:23.606571",
+ "modified": "2025-09-05 14:12:08.425241",
  "modified_by": "Administrator",
  "module": "Russeell",
  "name": "Payment Request CD",

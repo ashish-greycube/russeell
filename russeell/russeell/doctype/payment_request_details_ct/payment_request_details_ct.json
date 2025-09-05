@@ -1,0 +1,54 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-09-05 12:54:07.273112",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "expense_name",
+  "beneficiary_name",
+  "amount",
+  "remark"
+ ],
+ "fields": [
+  {
+   "fieldname": "expense_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Expense Name"
+  },
+  {
+   "fieldname": "beneficiary_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Beneficiary Name"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Remark"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-09-05 14:11:39.502351",
+ "modified_by": "Administrator",
+ "module": "Russeell",
+ "name": "Payment Request Details CT",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
